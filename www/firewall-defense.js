@@ -289,13 +289,23 @@
     const flash = $("fw-screen-flash");
     if (!flash) return;
     flash.classList.remove("fw-screen-flash--hit");
-    void flash.offsetWidth;
-    flash.classList.add("fw-screen-flash--hit");
+    requestAnimationFrame(() => {
+      flash.classList.add("fw-screen-flash--hit");
+    });
     const onEnd = () => {
       flash.classList.remove("fw-screen-flash--hit");
       flash.removeEventListener("animationend", onEnd);
     };
     flash.addEventListener("animationend", onEnd);
+  }
+
+  function lockChoicesAfterAnswer() {
+    const host = $("fw-choices");
+    if (!host) return;
+    host.querySelectorAll(".fw-choice").forEach((btn) => {
+      btn.disabled = true;
+    });
+    setChoicesInteractive(false);
   }
 
   function buildMatrixStreamHtml() {
@@ -476,7 +486,7 @@
     removeDropEl(drop, success ? null : "fw-drop-col--fail");
     drops = drops.filter((d) => d.id !== drop.id);
     activeDropId = null;
-    renderChoices(null);
+    lockChoicesAfterAnswer();
 
     if (success) {
       score += 10;
@@ -505,7 +515,7 @@
     removeDropEl(drop, "fw-drop-col--fail");
     drops = drops.filter((d) => d.id !== drop.id);
     activeDropId = null;
-    renderChoices(null);
+    lockChoicesAfterAnswer();
     loseLife();
     if (!gameActive || lives <= 0) return;
     questionsDone += 1;

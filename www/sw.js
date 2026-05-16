@@ -1,4 +1,4 @@
-const CACHE = "multiply-game-v50";
+const CACHE = "multiply-game-v51";
 
 const ASSETS = [
   "/",

@@ -577,6 +577,7 @@
       position: relative;
       z-index: 3;
       flex-shrink: 0;
+      contain: layout style;
     }
     .fw-gate-slot--fx::after {
       content: "";
@@ -598,6 +599,7 @@
         0 0 20px rgba(255, 85, 0, 0.5),
         inset 0 0 24px rgba(255, 85, 0, 0.15);
       transition: border-color 0.2s, box-shadow 0.2s;
+      contain: layout style;
     }
     .fw-gate-label {
       display: block;
@@ -648,9 +650,9 @@
       box-shadow: 0 0 32px rgba(255, 34, 68, 0.8);
     }
     @keyframes fw-breach-shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      25% { transform: translate3d(-5px, 0, 0); }
+      75% { transform: translate3d(5px, 0, 0); }
     }
     .fw-floor {
       position: absolute;
@@ -695,14 +697,16 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 5px;
       padding-bottom: 0;
-      min-height: 0;
       align-content: start;
-      flex: 0 0 auto;
+      flex: 0 0 calc(2 * 48px + 5px);
+      min-height: calc(2 * 48px + 5px);
+      box-sizing: border-box;
       position: relative;
       z-index: 50;
       pointer-events: auto;
       touch-action: manipulation;
       -webkit-tap-highlight-color: rgba(255, 140, 0, 0.25);
+      contain: layout style;
     }
     .fw-choice {
       min-height: 48px;

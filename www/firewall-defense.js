@@ -10,9 +10,10 @@
   const QUESTIONS_PER_SESSION = 20;
   const FW_STORAGE = "multiply_game_firewall_v1";
 
-  const FALL_BASE = 88;
-  const FALL_MAX = 210;
-  const FALL_PER_10_SCORE = 9;
+  const DROP_START_Y = 8;
+  const FALL_DURATION_BASE_SEC = 6.5;
+  const FALL_DURATION_MIN_SEC = 5.5;
+  const QUESTION_BUFFER_MS = 1500;
 
   const GATE_Y_RATIO = 0.52;
   const DANGER_FLOOR_RATIO = 0.88;
@@ -35,6 +36,7 @@
   let activeDropId = null;
   let lockedChoice = false;
   let onExitCb = null;
+  let pauseLocked = false;
   let lastStartOptions = null;
   let audioCtx = null;
   let matrixCanvas = null;
@@ -101,9 +103,20 @@
     return true;
   }
 
-  function getFallSpeed() {
-    const bonus = Math.floor(score / 10) * FALL_PER_10_SCORE;
-    return Math.min(FALL_MAX, FALL_BASE + bonus);
+  function dropTravelPx() {
+    return Math.max(100, gateY() - DROP_START_Y);
+  }
+
+  function getFallDurationSec() {
+    if (QUESTIONS_PER_SESSION <= 1) return FALL_DURATION_BASE_SEC;
+    const progress = Math.min(1, questionsDone / (QUESTIONS_PER_SESSION - 1));
+    const duration =
+      FALL_DURATION_BASE_SEC - progress * (FALL_DURATION_BASE_SEC - FALL_DURATION_MIN_SEC);
+    return Math.max(FALL_DURATION_MIN_SEC, duration);
+  }
+
+  function getFallSpeedPxPerSec() {
+    return dropTravelPx() / getFallDurationSec();
   }
 
   function questionsLeft() {
@@ -125,9 +138,7 @@
     clearSpawnSchedule();
     if (!gameActive || paused || questionsLeft() <= 0 || hasLiveDrop()) return;
     const gap =
-      typeof overrideMs === "number"
-        ? overrideMs
-        : Math.max(220, 520 - Math.floor(score / 15) * 35);
+      typeof overrideMs === "number" ? overrideMs : QUESTION_BUFFER_MS;
     spawnTimeoutId = setTimeout(() => {
       spawnTimeoutId = null;
       spawnDrop();
@@ -392,7 +403,8 @@
       id,
       factor,
       correct,
-      y: 8,
+      y: DROP_START_Y,
+      fallSpeedPx: getFallSpeedPxPerSec(),
       colEl: null,
       streamEl: null,
       headEl: null,
@@ -480,7 +492,7 @@
       return;
     }
 
-    if (gameActive && !paused) scheduleNextDrop(success ? 280 : 420);
+    if (gameActive && !paused) scheduleNextDrop(QUESTION_BUFFER_MS);
   }
 
   function handleDropDanger(drop) {
@@ -498,7 +510,7 @@
       endVictory();
       return;
     }
-    scheduleNextDrop(450);
+    scheduleNextDrop(QUESTION_BUFFER_MS);
   }
 
   function flashGate(kind) {
@@ -547,13 +559,13 @@
     if (!lastTs) lastTs = ts;
     const dt = Math.min(48, ts - lastTs) / 1000;
     lastTs = ts;
-    const fallSpeed = getFallSpeed();
     const floorY = arenaHeight() - 8;
     const gY = gateY();
     const danger = dangerY();
 
     drops.forEach((drop) => {
       if (drop.resolved || paused) return;
+      const fallSpeed = drop.fallSpeedPx || getFallSpeedPxPerSec();
       drop.y += fallSpeed * dt;
       updateDropVisual(drop);
 
@@ -697,22 +709,25 @@
     if (badge) badge.classList.add("hidden");
   }
 
-  function hidePause() {
-    hideOverlay("fw-overlay-pause");
-    const btn = $("btn-fw-pause");
-    if (btn) {
-      btn.setAttribute("aria-pressed", "false");
-      btn.textContent = "⏸";
-    }
+  function setChoicesInteractive(on) {
+    const host = $("fw-choices");
+    if (!host) return;
+    host.classList.toggle("fw-choices--paused", !on);
+    host.querySelectorAll(".fw-choice").forEach((btn) => {
+      btn.disabled = !on;
+    });
   }
 
-  function showPause() {
-    showOverlay("fw-overlay-pause");
-    const btn = $("btn-fw-pause");
-    if (btn) {
-      btn.setAttribute("aria-pressed", "true");
-      btn.textContent = "▶";
+  function updatePauseUi() {
+    const arena = $("fw-arena");
+    const hint = $("fw-pause-hint");
+    const showPaused = paused && gameActive;
+    if (arena) {
+      arena.classList.toggle("fw-arena--paused", showPaused);
+      arena.setAttribute("aria-pressed", showPaused ? "true" : "false");
     }
+    if (hint) hint.setAttribute("aria-hidden", showPaused ? "false" : "true");
+    setChoicesInteractive(!showPaused && gameActive);
   }
 
   function showGameOver() {
@@ -742,7 +757,7 @@
     paused = false;
     stop();
     clearArena();
-    hidePause();
+    updatePauseUi();
     showGameOver();
   }
 
@@ -751,7 +766,7 @@
     paused = false;
     stop();
     clearArena();
-    hidePause();
+    updatePauseUi();
     showVictory();
   }
 
@@ -767,47 +782,41 @@
   }
 
   function setPaused(next) {
-    if (!gameActive || lives <= 0) return;
+    if (!gameActive || lives <= 0 || pauseLocked) return;
     paused = !!next;
     if (paused) {
       clearSpawnSchedule();
-      showPause();
-      renderChoices(null);
     } else {
-      hidePause();
       lastTs = 0;
       if (!hasLiveDrop() && questionsLeft() > 0) {
-        scheduleNextDrop(200);
-      } else if (hasLiveDrop()) {
-        const drop = drops.find((d) => d.id === activeDropId && !d.resolved);
-        if (drop) renderChoices(drop);
+        scheduleNextDrop(QUESTION_BUFFER_MS);
       }
     }
+    updatePauseUi();
     updateHud();
   }
 
   function togglePause() {
+    if (!gameActive || lives <= 0 || pauseLocked) return;
     setPaused(!paused);
   }
 
   function pauseForExitDialog() {
     if (!gameActive) return;
-    hidePause();
+    pauseLocked = true;
     paused = true;
     clearSpawnSchedule();
-    renderChoices(null);
+    updatePauseUi();
   }
 
   function resumeFromExitDialog() {
     if (!gameActive) return;
+    pauseLocked = false;
     paused = false;
-    hidePause();
     lastTs = 0;
+    updatePauseUi();
     if (!hasLiveDrop() && questionsLeft() > 0) {
-      scheduleNextDrop(200);
-    } else if (hasLiveDrop()) {
-      const drop = drops.find((d) => d.id === activeDropId && !d.resolved);
-      if (drop) renderChoices(drop);
+      scheduleNextDrop(QUESTION_BUFFER_MS);
     }
   }
 
@@ -833,7 +842,8 @@
     clearArena();
     hideGameOver();
     hideVictory();
-    hidePause();
+    pauseLocked = false;
+    updatePauseUi();
 
     lastStartOptions = options || {};
     tableNum = typeof options.table === "number" ? options.table : 0;
@@ -869,7 +879,8 @@
     clearArena();
     hideGameOver();
     hideVictory();
-    hidePause();
+    pauseLocked = false;
+    updatePauseUi();
     if (onExitCb) onExitCb();
   }
 
@@ -878,8 +889,7 @@
     bindUiOnce.done = true;
 
     const quit = $("btn-fw-quit");
-    const pauseBtn = $("btn-fw-pause");
-    const pauseResume = $("fw-pause-resume");
+    const arena = $("fw-arena");
     const back = $("fw-result-map");
     const restartBtn = $("fw-restart");
     const victoryMap = $("fw-victory-map");
@@ -888,8 +898,12 @@
     if (quit) {
       quit.addEventListener("click", requestExit);
     }
-    if (pauseBtn) pauseBtn.addEventListener("click", togglePause);
-    if (pauseResume) pauseResume.addEventListener("click", () => setPaused(false));
+    if (arena) {
+      arena.addEventListener("click", () => {
+        if (!gameActive || pauseLocked) return;
+        togglePause();
+      });
+    }
     if (back) back.addEventListener("click", exitToMap);
     if (restartBtn) restartBtn.addEventListener("click", restart);
     if (victoryMap) victoryMap.addEventListener("click", exitToMap);

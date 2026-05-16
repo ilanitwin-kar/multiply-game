@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="theme-color" content="#6c5ce7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>הרפתקאת הכפל</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --bg: #12121f;
+      --card: #1e1e32;
+      --accent: #6c5ce7;
+      --accent2: #a29bfe;
+      --good: #00cec9;
+      --bad: #ff7675;
+      --gold: #fdcb6e;
+      --text: #f5f6fa;
+      --muted: #a4a7c4;
+      --boss: #e17055;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Segoe UI", "Rubik", system-ui, sans-serif;
+      background: radial-gradient(120% 80% at 50% 0%, #2d2d44 0%, var(--bg) 55%);
+      color: var(--text);
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #app {
+      max-width: 28rem;
+      margin: 0 auto;
+      min-height: 100dvh;
+      padding: calc(12px + var(--safe-top)) 14px calc(16px + var(--safe-bottom));
+      display: flex;
+      flex-direction: column;
+    }
+    h1 {
+      font-size: 1.35rem;
+      margin: 0 0 4px;
+      letter-spacing: -0.02em;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .pill {
+      background: var(--card);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .pill strong { color: var(--gold); }
+    button, .btn {
+      border: none;
+      border-radius: 14px;
+      font: inherit;
+      cursor: pointer;
+      min-height: 48px;
+      padding: 12px 16px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 4px 0 #4b3db8;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+    button:active, .btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #4b3db8;
+    }
+    button.secondary {
+      background: var(--card);
+      color: var(--text);
+      box-shadow: 0 4px 0 #0f0f18;
+    }
+    button.secondary:active { box-shadow: 0 2px 0 #0f0f18; }
+    button.danger { background: var(--bad); box-shadow: 0 4px 0 #c0392b; }
+    .map {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+      overflow-y: auto;
+    }
+    .node {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: var(--card);
+      border: 2px solid transparent;
+      text-align: right;
+    }
+    .node.locked { opacity: 0.45; pointer-events: none; }
+    .node.boss { border-color: var(--boss); background: linear-gradient(135deg, #2a1f2e, var(--card)); }
+    .node h2 { margin: 0; font-size: 1.05rem; }
+    .node p { margin: 4px 0 0; color: var(--muted); font-size: 0.82rem; }
+    .stars { font-size: 1.1rem; letter-spacing: 2px; }
+    .play-head {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .stat {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+    }
+    .stat b { display: block; font-size: 1.15rem; color: var(--accent2); }
+    .question {
+      text-align: center;
+      font-size: clamp(2rem, 10vw, 2.6rem);
+      font-weight: 800;
+      margin: 20px 0 8px;
+      text-shadow: 0 2px 20px rgba(108, 92, 231, 0.35);
+    }
+    .math-ltr {
+      direction: ltr;
+      unicode-bidi: isolate;
+      display: inline-block;
+    }
+    .progress {
+      height: 8px;
+      background: #0f0f18;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .progress > i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--good));
+      width: 0%;
+      transition: width 0.25s;
+    }
+    .choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .choices button {
+      font-size: 1.25rem;
+      min-height: 56px;
+    }
+    .choices button.wrong { animation: shake 0.35s; background: var(--bad); box-shadow: 0 4px 0 #b33939; }
+    .choices button.right { background: var(--good); box-shadow: 0 4px 0 #008b87; }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    .hint {
+      min-height: 3em;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+    }
+    .modal {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 20px;
+      max-width: 22rem;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+    .modal h3 { margin-top: 0; }
+    .hidden { display: none !important; }
+    footer {
+      margin-top: auto;
+      padding-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    footer button { flex: 1; min-width: 44%; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="screen-map">
+      <h1>הרפתקאת הכפל</h1>
+      <p class="sub">מפת שלבים · שיא אישי · קומבו ובוסים</p>
+      <div class="row">
+        <span class="pill">סה״כ כוכבים: <strong id="total-stars">0</strong></span>
+        <span class="pill">שיא קומבו גלובלי: <strong id="best-combo-global">0</strong></span>
+      </div>
+      <div class="map" id="map-nodes"></div>
+      <footer>
+        <button type="button" class="secondary" id="btn-install-help">איך מתקינים על הנייד</button>
+      </footer>
+    </div>
+
+    <div id="screen-play" class="hidden">
+      <div class="row" style="justify-content: space-between; width: 100%;">
+        <button type="button" class="secondary" id="btn-quit" style="min-height:44px;padding:8px 14px;">יציאה</button>
+        <span class="pill" id="level-tag"></span>
+      </div>
+      <div class="play-head">
+        <div class="stat">זמן<br /><b id="timer">0</b> שנ׳</div>
+        <div class="stat">קומבו<br /><b id="combo">0</b></div>
+        <div class="stat">ניקוד<br /><b id="score">0</b></div>
+        <div class="stat">שאלה<br /><b id="q-index">1</b> / <span id="q-total">20</span></div>
+      </div>
+      <div class="progress"><i id="progress-bar"></i></div>
+      <div class="question math-ltr" id="q-text">0 × 0 = ?</div>
+      <div class="choices" id="choices" dir="ltr"></div>
+      <p class="hint" id="hint"></p>
+    </div>
+  </div>
+
+  <div id="overlay-end" class="overlay hidden" aria-hidden="true">
+    <div class="modal">
+      <h3 id="end-title">כל הכבוד!</h3>
+      <p id="end-desc"></p>
+      <p class="stars" id="end-stars" style="font-size:2rem;margin:12px 0;">☆☆☆</p>
+      <p id="end-record" style="color:var(--muted);font-size:0.9rem;"></p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
+        <button type="button" id="end-map">חזרה למפה</button>
+        <button type="button" class="secondary" id="end-retry">עוד ניסיון</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="overlay-help" class="overlay hidden" aria-hidden="true">
+    <div class="modal" style="text-align:right;">
+      <h3>התקנה כמו אפליקציה</h3>
+      <p style="color:var(--muted);font-size:0.92rem;line-height:1.5;">
+        <b>אנדרואיד (כרום):</b> תפריט ⋮ → «התקן אפליקציה» או «הוסף למסך הבית».<br /><br />
+        <b>אייפון (ספארי):</b> שיתוף ↑ → «הוסף למסך הבית».<br /><br />
+        אחרי פריסה ב-Vercel (או שרת עם HTTPS): פתחו את הקישור בנייד והוסיפו למסך הבית. מתוך `file://` או HTTP מקומי בלי מנהרה — התקנה לפעמים לא תופיע.
+      </p>
+      <button type="button" id="help-close" style="width:100%;margin-top:12px;">סגור</button>
+    </div>
+  </div>
+
+  <script>
+(function () {
+  const STORAGE = "multiply_game_save_v2";
+
+  const MULT_MAX = 12;
+  const QUESTIONS_PER_LEVEL = 20;
+
+  const LEVELS = [
+    { id: 0, type: "table", table: 0, title: "טבלת 0", desc: "20 שאלות · כל הכפולות 0–12" },
+    { id: 1, type: "table", table: 1, title: "טבלת 1", desc: "" },
+    { id: 2, type: "boss", title: "בוס קטן", desc: "כפול 0–12 · 20 שאלות" },
+    { id: 3, type: "table", table: 2, title: "טבלת 2", desc: "" },
+    { id: 4, type: "table", table: 3, title: "טבלת 3", desc: "" },
+    { id: 5, type: "boss", title: "בוס", desc: "כפול 0–12" },
+    { id: 6, type: "table", table: 4, title: "טבלת 4", desc: "" },
+    { id: 7, type: "table", table: 5, title: "טבלת 5", desc: "" },
+    { id: 8, type: "boss", title: "בוס", desc: "כפול 0–12" },
+    { id: 9, type: "table", table: 6, title: "טבלת 6", desc: "" },
+    { id: 10, type: "table", table: 7, title: "טבלת 7", desc: "" },
+    { id: 11, type: "boss", title: "בוס", desc: "כפול 0–12" },
+    { id: 12, type: "table", table: 8, title: "טבלת 8", desc: "" },
+    { id: 13, type: "table", table: 9, title: "טבלת 9", desc: "" },
+    { id: 14, type: "boss", title: "בוס", desc: "כפול 0–12" },
+    { id: 15, type: "table", table: 10, title: "טבלת 10", desc: "" },
+    { id: 16, type: "table", table: 11, title: "טבלת 11", desc: "" },
+    { id: 17, type: "boss", title: "בוס", desc: "כפול 0–12" },
+    { id: 18, type: "table", table: 12, title: "טבלת 12", desc: "" },
+    { id: 19, type: "boss", title: "בוס עליון", desc: "כפול 0–12" },
+  ];
+
+  function loadSave() {
+    try {
+      const raw = localStorage.getItem(STORAGE);
+      if (!raw) return { levels: {}, bestComboEver: 0 };
+      return JSON.parse(raw);
+    } catch {
+      return { levels: {}, bestComboEver: 0 };
+    }
+  }
+
+  function saveSave(data) {
+    localStorage.setItem(STORAGE, JSON.stringify(data));
+  }
+
+  function isUnlocked(id) {
+    if (id === 0) return true;
+    const prev = LEVELS[id - 1];
+    const st = state.save.levels[String(prev.id)];
+    return st && st.stars >= 1;
+  }
+
+  function starString(n) {
+    const f = "★".repeat(n);
+    const e = "☆".repeat(3 - n);
+    return f + e;
+  }
+
+  const state = {
+    save: loadSave(),
+    screen: "map",
+    levelId: 0,
+    q: 0,
+    correct: 0,
+    combo: 0,
+    maxCombo: 0,
+    score: 0,
+    startTime: 0,
+    timerId: null,
+    current: null,
+    choices: [],
+    lockedInput: false,
+    questionQueue: [],
+  };
+
+  function el(id) {
+    return document.getElementById(id);
+  }
+
+  function rnd(a, b) {
+    return Math.floor(Math.random() * (b - a + 1)) + a;
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = rnd(0, i);
+      const t = arr[i];
+      arr[i] = arr[j];
+      arr[j] = t;
+    }
+    return arr;
+  }
+
+  function buildTableQuestionQueue(table) {
+    const M = MULT_MAX;
+    const row = [];
+    for (let k = 0; k <= M; k++) {
+      row.push({ a: table, b: k });
+    }
+    shuffle(row);
+    const rev = [];
+    for (let k = 0; k <= M; k++) {
+      if (k !== table) {
+        rev.push({ a: k, b: table });
+      }
+    }
+    shuffle(rev);
+    const nExtra = QUESTIONS_PER_LEVEL - row.length;
+    const queue = row.concat(rev.slice(0, nExtra));
+    shuffle(queue);
+    return queue;
+  }
+
+  function buildBossQuestionQueue() {
+    const queue = [];
+    for (let i = 0; i < QUESTIONS_PER_LEVEL; i++) {
+      let a = rnd(0, MULT_MAX);
+      let b = rnd(0, MULT_MAX);
+      if (Math.random() < 0.5) {
+        const t = a;
+        a = b;
+        b = t;
+      }
+      queue.push({ a, b });
+    }
+    return queue;
+  }
+
+  function wrongAnswers(correct) {
+    const set = new Set();
+    if (correct === 0) {
+      let v = 1;
+      while (set.size < 3) {
+        set.add(v++);
+      }
+      return Array.from(set);
+    }
+    while (set.size < 3) {
+      const delta = rnd(-8, 8);
+      if (delta === 0) continue;
+      const v = correct + delta;
+      if (v >= 0 && v !== correct) set.add(v);
+    }
+    return Array.from(set).slice(0, 3);
+  }
+
+  function renderMap() {
+    state.save = loadSave();
+    let totalStars = 0;
+    for (let i = 0; i < LEVELS.length; i++) {
+      const L = LEVELS[i];
+      const st = state.save.levels[String(L.id)] || { stars: 0, bestScore: 0, bestCombo: 0, bestTimeSec: null };
+      totalStars += st.stars || 0;
+    }
+    el("total-stars").textContent = String(totalStars);
+    el("best-combo-global").textContent = String(state.save.bestComboEver || 0);
+
+    const host = el("map-nodes");
+    host.innerHTML = "";
+    LEVELS.forEach((L) => {
+      const st = state.save.levels[String(L.id)] || { stars: 0, bestScore: 0, bestCombo: 0, bestTimeSec: null };
+      const unlocked = isUnlocked(L.id);
+      const div = document.createElement("div");
+      div.className = "node" + (L.type === "boss" ? " boss" : "") + (!unlocked ? " locked" : "");
+      div.innerHTML =
+        "<div><h2>" +
+        L.title +
+        "</h2><p>" +
+        (L.desc || "נצחו את השלב כדי לפתוח את הבא") +
+        "</p>" +
+        (st.stars > 0
+          ? "<p class=\"stars\">" +
+            starString(st.stars) +
+            "</p><p style=\"font-size:0.78rem;color:var(--muted)\">שיא ניקוד: " +
+            st.bestScore +
+            " · שיא קומבו בשלב: " +
+            st.bestCombo +
+            (st.bestTimeSec != null ? " · זמן שיא: " + st.bestTimeSec + " שנ׳" : "") +
+            "</p>"
+          : "") +
+        "</div>";
+      if (unlocked) {
+        const go = document.createElement("button");
+        go.type = "button";
+        go.textContent = st.stars ? "שחק שוב" : "התחל";
+        go.addEventListener("click", () => startLevel(L.id));
+        div.appendChild(go);
+      } else {
+        const sp = document.createElement("span");
+        sp.className = "pill";
+        sp.textContent = "נעול";
+        div.appendChild(sp);
+      }
+      host.appendChild(div);
+    });
+  }
+
+  function showScreen(name) {
+    state.screen = name;
+    el("screen-map").classList.toggle("hidden", name !== "map");
+    el("screen-play").classList.toggle("hidden", name !== "play");
+  }
+
+  function stopTimer() {
+    if (state.timerId) {
+      clearInterval(state.timerId);
+      state.timerId = null;
+    }
+  }
+
+  function startTimer() {
+    stopTimer();
+    state.startTime = Date.now();
+    state.timerId = setInterval(() => {
+      const sec = Math.floor((Date.now() - state.startTime) / 1000);
+      el("timer").textContent = String(sec);
+    }, 500);
+  }
+
+  function startLevel(levelId) {
+    state.levelId = levelId;
+    state.q = 0;
+    state.correct = 0;
+    state.combo = 0;
+    state.maxCombo = 0;
+    state.score = 0;
+    state.lockedInput = false;
+    const L = LEVELS[levelId];
+    if (L.type === "table") {
+      state.questionQueue = buildTableQuestionQueue(L.table);
+    } else {
+      state.questionQueue = buildBossQuestionQueue();
+    }
+    el("level-tag").textContent = L.title;
+    el("hint").textContent = "";
+    el("combo").textContent = "0";
+    el("score").textContent = "0";
+    el("timer").textContent = "0";
+    el("progress-bar").style.width = "0%";
+    showScreen("play");
+    startTimer();
+    nextQuestion();
+  }
+
+  function nextQuestion() {
+    state.q += 1;
+    if (state.q > QUESTIONS_PER_LEVEL) {
+      endLevel();
+      return;
+    }
+    const item = state.questionQueue[state.q - 1];
+    state.current = { a: item.a, b: item.b, answer: item.a * item.b };
+    state.choices = wrongAnswers(state.current.answer);
+    const pos = rnd(0, 3);
+    state.choices.splice(pos, 0, state.current.answer);
+    el("q-text").textContent = state.current.a + " × " + state.current.b + " = ?";
+    el("q-index").textContent = String(state.q);
+    el("progress-bar").style.width = String(((state.q - 1) / QUESTIONS_PER_LEVEL) * 100) + "%";
+    const box = el("choices");
+    box.innerHTML = "";
+    state.choices.forEach((val) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = String(val);
+      b.addEventListener("click", () => onPick(val, b));
+      box.appendChild(b);
+    });
+    state.lockedInput = false;
+    el("hint").textContent = "";
+  }
+
+  function onPick(val, btn) {
+    if (state.lockedInput || state.screen !== "play") return;
+    state.lockedInput = true;
+    const ok = val === state.current.answer;
+    if (ok) {
+      btn.classList.add("right");
+      state.correct += 1;
+      state.combo += 1;
+      if (state.combo > state.maxCombo) state.maxCombo = state.combo;
+      state.score += 10 + Math.min(state.combo, 10) * 2;
+      el("combo").textContent = String(state.combo);
+      el("score").textContent = String(state.score);
+      el("hint").textContent = state.combo >= 3 ? "קומבו! ככה ממשיכים!" : "מעולה!";
+    } else {
+      btn.classList.add("wrong");
+      state.combo = 0;
+      el("combo").textContent = "0";
+      el("hint").innerHTML =
+        "לא נורא — התשובה היא " +
+        state.current.answer +
+        '. זוכרים: <span class="math-ltr">' +
+        state.current.a +
+        " × " +
+        state.current.b +
+        " = " +
+        state.current.answer +
+        "</span>";
+    }
+    el("progress-bar").style.width = String((state.q / QUESTIONS_PER_LEVEL) * 100) + "%";
+    setTimeout(() => {
+      nextQuestion();
+    }, ok ? 450 : 1200);
+  }
+
+  function calcStars(correct, maxCombo, timeSec) {
+    const Q = QUESTIONS_PER_LEVEL;
+    if (correct >= Q) {
+      if (maxCombo >= 5 && timeSec <= 110) return 3;
+      if (maxCombo >= 3 || timeSec <= 140) return 3;
+      return 2;
+    }
+    if (correct >= Q - 3) return 2;
+    if (correct >= Q - 6) return 1;
+    return 0;
+  }
+
+  function endLevel() {
+    stopTimer();
+    const timeSec = Math.floor((Date.now() - state.startTime) / 1000);
+    el("timer").textContent = String(timeSec);
+    const stars = calcStars(state.correct, state.maxCombo, timeSec);
+    const L = LEVELS[state.levelId];
+    const key = String(L.id);
+    const prev = state.save.levels[key] || { stars: 0, bestScore: 0, bestCombo: 0, bestTimeSec: null };
+
+    if (stars > 0) {
+      const newStars = Math.max(prev.stars, stars);
+      const bestScore = Math.max(prev.bestScore, state.score);
+      const bestCombo = Math.max(prev.bestCombo, state.maxCombo);
+      let bestTimeSec = prev.bestTimeSec;
+      if (bestTimeSec == null || timeSec < bestTimeSec) bestTimeSec = timeSec;
+      state.save.levels[key] = { stars: newStars, bestScore, bestCombo, bestTimeSec };
+    } else {
+      state.save.levels[key] = {
+        stars: prev.stars,
+        bestScore: Math.max(prev.bestScore, state.score),
+        bestCombo: Math.max(prev.bestCombo, state.maxCombo),
+        bestTimeSec: prev.bestTimeSec,
+      };
+    }
+    if (state.maxCombo > (state.save.bestComboEver || 0)) {
+      state.save.bestComboEver = state.maxCombo;
+    }
+    saveSave(state.save);
+
+    el("overlay-end").classList.remove("hidden");
+    el("overlay-end").setAttribute("aria-hidden", "false");
+    if (stars === 0) {
+      el("end-title").textContent = "עוד קצת תרגול";
+      el("end-desc").textContent =
+        "השלמת " +
+        state.correct +
+        " מתוך " +
+        QUESTIONS_PER_LEVEL +
+        " נכון. נסו שוב — כל ניסיון משפר!";
+      el("end-stars").textContent = "☆☆☆";
+      el("end-record").textContent = "";
+    } else {
+      el("end-title").textContent = "כל הכבוד!";
+      el("end-desc").textContent =
+        L.title +
+        " — " +
+        state.correct +
+        "/" +
+        QUESTIONS_PER_LEVEL +
+        " נכון, זמן " +
+        timeSec +
+        " שנ׳, קומבו מקסימלי " +
+        state.maxCombo;
+      el("end-stars").textContent = starString(stars);
+      const rec = state.save.levels[key];
+      el("end-record").textContent =
+        "שיא אישי בשלב: ניקוד " +
+        rec.bestScore +
+        ", קומבו " +
+        rec.bestCombo +
+        (rec.bestTimeSec != null ? ", זמן שיא " + rec.bestTimeSec + " שנ׳" : "");
+    }
+  }
+
+  function closeEnd() {
+    el("overlay-end").classList.add("hidden");
+    el("overlay-end").setAttribute("aria-hidden", "true");
+  }
+
+  el("end-map").addEventListener("click", () => {
+    closeEnd();
+    renderMap();
+    showScreen("map");
+  });
+  el("end-retry").addEventListener("click", () => {
+    closeEnd();
+    startLevel(state.levelId);
+  });
+  el("btn-quit").addEventListener("click", () => {
+    if (!confirm("לצאת מהשלב?")) return;
+    stopTimer();
+    showScreen("map");
+    renderMap();
+  });
+  el("btn-install-help").addEventListener("click", () => {
+    el("overlay-help").classList.remove("hidden");
+    el("overlay-help").setAttribute("aria-hidden", "false");
+  });
+  el("help-close").addEventListener("click", () => {
+    el("overlay-help").classList.add("hidden");
+    el("overlay-help").setAttribute("aria-hidden", "true");
+  });
+
+  if ("serviceWorker" in navigator && window.isSecureContext) {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  }
+
+  renderMap();
+  el("q-total").textContent = String(QUESTIONS_PER_LEVEL);
+})();
+  </script>
+</body>
+</html>

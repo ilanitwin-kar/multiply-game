@@ -1,0 +1,17 @@
+node_modules/
+.vercel/
+dist/
+build/
+
+# Capacitor / native (נוצר אחרי npx cap add)
+android/
+ios/
+.capacitor/
+
+# מערכת / IDE
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+!.env.example

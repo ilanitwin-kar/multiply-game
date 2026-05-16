@@ -6,6 +6,7 @@
 
   const MULT_MAX = 12;
   const LIVES_MAX = 3;
+  const STREAK_FOR_LIFE = 5;
   const QUESTIONS_PER_SESSION = 20;
   const FW_STORAGE = "multiply_game_firewall_v1";
 
@@ -23,6 +24,7 @@
   let paused = false;
   let tableNum = 0;
   let lives = LIVES_MAX;
+  let correctStreak = 0;
   let score = 0;
   let questionsDone = 0;
   let spawnTimeoutId = null;
@@ -202,13 +204,51 @@
     if (navigator.vibrate) navigator.vibrate([35, 40, 35]);
   }
 
+  function sfxHeal() {
+    playTone(392, 0.07, "sine", 0.055);
+    playTone(784, 0.1, "sine", 0.065);
+    playTone(1175, 0.14, "sine", 0.05);
+  }
+
+  function vibrateHeal() {
+    if (navigator.vibrate) navigator.vibrate([18, 28, 18, 28, 22]);
+  }
+
+  function grantLifeReward() {
+    const hadLoss = lives < LIVES_MAX;
+    lives = LIVES_MAX;
+    updateShields();
+    sfxHeal();
+    vibrateHeal();
+    const row = $("fw-shields");
+    if (row) {
+      row.classList.remove("fw-cores--heal");
+      void row.offsetWidth;
+      row.classList.add("fw-cores--heal");
+      setTimeout(() => row.classList.remove("fw-cores--heal"), 800);
+    }
+    if (!hadLoss) score += 15;
+  }
+
+  function onCorrectAnswer() {
+    correctStreak += 1;
+    if (correctStreak >= STREAK_FOR_LIFE) {
+      correctStreak = 0;
+      grantLifeReward();
+    }
+  }
+
+  function resetCorrectStreak() {
+    correctStreak = 0;
+  }
+
   function updateShields() {
     const row = $("fw-shields");
     if (!row) return;
-    row.querySelectorAll(".fw-shield").forEach((el, i) => {
+    row.querySelectorAll(".fw-core").forEach((el, i) => {
       const alive = i < lives;
-      el.classList.toggle("fw-shield--on", alive);
-      el.classList.toggle("fw-shield--lost", !alive);
+      el.classList.toggle("fw-core--on", alive);
+      el.classList.toggle("fw-core--lost", !alive);
     });
   }
 
@@ -240,6 +280,8 @@
     if (qLeft) qLeft.textContent = String(left);
     if (progFill) progFill.style.width = pct + "%";
     if (progLabel) progLabel.textContent = pct + "%";
+    const progPct = $("fw-progress-pct");
+    if (progPct) progPct.textContent = pct + "%";
     if (progBar) progBar.setAttribute("aria-valuenow", String(pct));
 
     const expr = $("fw-gate-expr");
@@ -438,6 +480,9 @@
     if (success) {
       score += 10;
       flashGate("block");
+      onCorrectAnswer();
+    } else {
+      resetCorrectStreak();
     }
 
     questionsDone += 1;
@@ -491,6 +536,7 @@
 
   function loseLife() {
     if (!gameActive || lives <= 0) return;
+    resetCorrectStreak();
     lives -= 1;
     updateShields();
     screenFlash();
@@ -671,7 +717,7 @@
     const btn = $("btn-fw-pause");
     if (btn) {
       btn.setAttribute("aria-pressed", "false");
-      btn.textContent = "השהיה ⏸";
+      btn.textContent = "⏸";
     }
   }
 
@@ -680,7 +726,7 @@
     const btn = $("btn-fw-pause");
     if (btn) {
       btn.setAttribute("aria-pressed", "true");
-      btn.textContent = "המשך ▶";
+      btn.textContent = "▶";
     }
   }
 
@@ -759,6 +805,44 @@
     setPaused(!paused);
   }
 
+  function pauseForExitDialog() {
+    if (!gameActive) return;
+    hidePause();
+    paused = true;
+    clearSpawnSchedule();
+    renderChoices(null);
+  }
+
+  function resumeFromExitDialog() {
+    if (!gameActive) return;
+    paused = false;
+    hidePause();
+    lastTs = 0;
+    if (!hasLiveDrop() && questionsLeft() > 0) {
+      scheduleNextDrop(200);
+    } else if (hasLiveDrop()) {
+      const drop = drops.find((d) => d.id === activeDropId && !d.resolved);
+      if (drop) renderChoices(drop);
+    }
+  }
+
+  function requestExit() {
+    if (!gameActive) {
+      exitToMap();
+      return;
+    }
+    pauseForExitDialog();
+    if (typeof global.showMatrixExitConfirm === "function") {
+      global.showMatrixExitConfirm(
+        "ניתוק מהגנת הפיירוול יסיים את הסבב הנוכחי. לאשר ניתוק?",
+        exitToMap,
+        resumeFromExitDialog
+      );
+    } else {
+      exitToMap();
+    }
+  }
+
   function start(options) {
     stop();
     clearArena();
@@ -770,6 +854,7 @@
     tableNum = typeof options.table === "number" ? options.table : 0;
     onExitCb = typeof options.onExit === "function" ? options.onExit : null;
     lives = LIVES_MAX;
+    correctStreak = 0;
     score = 0;
     questionsDone = 0;
     gameActive = true;
@@ -790,6 +875,9 @@
   }
 
   function exitToMap() {
+    if (typeof global.dismissMatrixExitOverlay === "function") {
+      global.dismissMatrixExitOverlay();
+    }
     gameActive = false;
     paused = false;
     stop();
@@ -813,13 +901,7 @@
     const victoryRestart = $("fw-victory-restart");
 
     if (quit) {
-      quit.addEventListener("click", () => {
-        if (!gameActive && lives <= 0) {
-          exitToMap();
-          return;
-        }
-        if (!gameActive || confirm("לצאת מהגנת הפיירוול?")) exitToMap();
-      });
+      quit.addEventListener("click", requestExit);
     }
     if (pauseBtn) pauseBtn.addEventListener("click", togglePause);
     if (pauseResume) pauseResume.addEventListener("click", () => setPaused(false));

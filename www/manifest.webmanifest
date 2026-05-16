@@ -1,15 +1,15 @@
 {
   "id": "/",
-  "name": "הרפתקאת הכפל",
-  "short_name": "הכפל",
-  "description": "משחק לוח הכפל עם מפת שלבים",
+  "name": "סייבר כפל: המאסטר המוחלט",
+  "short_name": "סייבר כפל",
+  "description": "מטריקס שדרוג מוח — הפכו לאלוף הכפל",
   "lang": "he",
   "dir": "rtl",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#1a1a2e",
-  "theme_color": "#6c5ce7",
+  "background_color": "#000a0a",
+  "theme_color": "#00ffff",
   "orientation": "portrait",
   "icons": [
     {

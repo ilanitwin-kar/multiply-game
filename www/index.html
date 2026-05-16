@@ -3,26 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
-  <meta name="theme-color" content="#6c5ce7" />
+  <meta name="theme-color" content="#00ffff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>הרפתקאת הכפל</title>
+  <title>סייבר כפל: המאסטר המוחלט</title>
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="icon" href="/icon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/icon-192.png" />
-  <meta name="apple-mobile-web-app-title" content="הכפל" />
+  <meta name="apple-mobile-web-app-title" content="סייבר כפל" />
   <style>
     :root {
-      --bg: #12121f;
-      --card: #1e1e32;
-      --accent: #6c5ce7;
-      --accent2: #a29bfe;
-      --good: #00cec9;
-      --bad: #ff7675;
-      --gold: #fdcb6e;
-      --text: #f5f6fa;
-      --muted: #a4a7c4;
-      --boss: #e17055;
+      --bg: #000a0a;
+      --card: rgba(0, 0, 0, 0.75);
+      --cyan: #00ffff;
+      --accent: #6200ea;
+      --accent2: #9c4dcc;
+      --accent-dark: #3d00b7;
+      --good: #00ffcc;
+      --bad: #ff3355;
+      --gold: #00ffff;
+      --text: #e0fff8;
+      --muted: #7ad4c8;
+      --boss: #9c4dcc;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
@@ -30,13 +32,41 @@
     html, body {
       margin: 0;
       min-height: 100%;
-      font-family: "Segoe UI", "Rubik", system-ui, sans-serif;
-      background: radial-gradient(120% 80% at 50% 0%, #2d2d44 0%, var(--bg) 55%);
+      font-family: "Courier New", Courier, monospace;
+      background: #000;
       color: var(--text);
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(0, 255, 255, 0.06) 0%, transparent 45%),
+        radial-gradient(circle at 80% 70%, rgba(98, 0, 234, 0.08) 0%, transparent 40%),
+        linear-gradient(180deg, #000810 0%, #000 40%, #050010 100%);
+    }
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 255, 0.04) 2px,
+        rgba(0, 255, 255, 0.04) 4px
+      );
+    }
     #app {
+      position: relative;
+      z-index: 1;
       max-width: 28rem;
       margin: 0 auto;
       min-height: 100dvh;
@@ -44,14 +74,53 @@
       display: flex;
       flex-direction: column;
     }
+    #screen-play.boss-mode {
+      border: 2px solid #ff2244;
+      border-radius: 4px;
+      margin: -2px;
+      padding: 2px;
+      box-shadow: 0 0 24px rgba(255, 34, 68, 0.55);
+      animation: boss-frame-pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes boss-frame-pulse {
+      0%, 100% { box-shadow: 0 0 16px rgba(255, 34, 68, 0.45); border-color: #ff2244; }
+      50% { box-shadow: 0 0 32px rgba(255, 80, 100, 0.85); border-color: #ff6677; }
+    }
+    #screen-play.boss-mode .question {
+      color: #ff6677;
+      text-shadow: 0 0 22px rgba(255, 50, 80, 0.65);
+    }
+    #screen-play.boss-mode .stat {
+      border-color: rgba(255, 50, 80, 0.55);
+      box-shadow: 0 0 12px rgba(255, 34, 68, 0.25);
+    }
+    #screen-play.boss-mode .stat b {
+      color: #ff8899;
+    }
+    #screen-play {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+    #screen-play.boss-mode .cyber-progress {
+      border-color: rgba(255, 50, 80, 0.55);
+      box-shadow: inset 0 0 12px rgba(255, 34, 68, 0.2);
+    }
+    #screen-play.boss-mode .cyber-progress-fill {
+      background: linear-gradient(90deg, #660022, #ff3355, #ff6688);
+      box-shadow: 0 0 16px rgba(255, 50, 80, 0.65);
+    }
     h1 {
-      font-size: 1.35rem;
+      font-size: 1.2rem;
       margin: 0 0 4px;
-      letter-spacing: -0.02em;
+      letter-spacing: 0.04em;
+      color: var(--cyan);
+      text-shadow: 0 0 12px rgba(0, 255, 255, 0.5);
     }
     .sub {
       color: var(--muted);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       margin-bottom: 14px;
     }
     .row {
@@ -62,98 +131,443 @@
     }
     .pill {
       background: var(--card);
-      border-radius: 999px;
+      border: 1px solid rgba(0, 255, 255, 0.35);
+      border-radius: 4px;
       padding: 6px 12px;
       font-size: 0.8rem;
       color: var(--muted);
+      box-shadow: 0 0 8px rgba(0, 255, 255, 0.15);
     }
-    .pill strong { color: var(--gold); }
-    button, .btn {
-      border: none;
-      border-radius: 14px;
+    .pill strong { color: var(--cyan); }
+    button, .btn, .game-btn {
+      border: 1px solid #9c4dcc;
+      border-radius: 4px;
       font: inherit;
       cursor: pointer;
       min-height: 48px;
       padding: 12px 16px;
-      background: var(--accent);
+      background: linear-gradient(135deg, #6200ea, #3d00b7);
       color: #fff;
       font-weight: 700;
-      box-shadow: 0 4px 0 #4b3db8;
-      transition: transform 0.08s, box-shadow 0.08s;
+      box-shadow: 0 0 10px rgba(98, 0, 234, 0.5);
+      transition: transform 0.08s, box-shadow 0.08s, filter 0.15s;
     }
-    button:active, .btn:active {
-      transform: translateY(2px);
-      box-shadow: 0 2px 0 #4b3db8;
+    button:hover, .game-btn:hover { filter: brightness(1.1); }
+    button:active, .btn:active, .game-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 0 6px rgba(98, 0, 234, 0.4);
     }
-    button.secondary {
-      background: var(--card);
-      color: var(--text);
-      box-shadow: 0 4px 0 #0f0f18;
+    button.secondary, .game-btn.secondary {
+      background: rgba(0, 0, 0, 0.75);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
     }
-    button.secondary:active { box-shadow: 0 2px 0 #0f0f18; }
-    button.danger { background: var(--bad); box-shadow: 0 4px 0 #c0392b; }
-    .map {
+    button.danger { background: linear-gradient(135deg, #aa0033, #550000); border-color: #ff3355; }
+    .map-wrap {
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      min-height: 0;
       margin-top: 8px;
-      overflow-y: auto;
     }
-    .node {
+    .cores-grid {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 0;
+    }
+    .core-card {
+      flex: 1;
+      min-height: 7.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 8px;
+      padding: 18px 20px;
+      text-align: right;
+      background: rgba(0, 0, 0, 0.75);
+      border: 2px solid #00ffff;
+      border-radius: 4px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.35);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .core-card:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 0 28px rgba(0, 255, 255, 0.5);
+    }
+    .core-card h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      color: var(--cyan);
+      text-shadow: 0 0 12px rgba(0, 255, 255, 0.45);
+    }
+    .core-card p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .core-card .core-enter {
+      font-size: 0.78rem;
+      color: #c9a0ff;
+      margin-top: 4px;
+    }
+    .core-card--locked {
+      cursor: not-allowed;
+      pointer-events: none;
+      border-color: #550000;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.12);
+      opacity: 0.55;
+    }
+    .core-card--locked h2,
+    .core-card--locked p {
+      color: #5a4a4a;
+      text-shadow: none;
+    }
+    .core-lock {
+      font-size: 1.5rem;
+      line-height: 1;
+      opacity: 0.85;
+    }
+    .core-levels-head {
+      margin-bottom: 12px;
+    }
+    .btn-back-cores {
+      width: 100%;
+      margin-bottom: 12px;
+      font-size: 0.88rem;
+    }
+    #core-levels-title {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+      color: var(--cyan);
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+    }
+    .core-levels-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .node, .table-card {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
       padding: 14px 16px;
-      border-radius: 16px;
-      background: var(--card);
-      border: 2px solid transparent;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.75);
+      border: 2px solid #00ffff;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
       text-align: right;
     }
-    .node.locked { opacity: 0.45; pointer-events: none; }
-    .node.boss { border-color: var(--boss); background: linear-gradient(135deg, #2a1f2e, var(--card)); }
-    .node h2 { margin: 0; font-size: 1.05rem; }
-    .node p { margin: 4px 0 0; color: var(--muted); font-size: 0.82rem; }
-    .stars { font-size: 1.1rem; letter-spacing: 2px; }
+    .node.locked, .table-card.locked {
+      opacity: 0.5;
+      pointer-events: none;
+      border: 2px solid #550000;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.15);
+    }
+    .node.locked h2,
+    .node.locked p,
+    .node.locked .stars,
+    .table-card.locked h2,
+    .table-card.locked p,
+    .table-card.locked .stars {
+      color: #4a4040;
+      text-shadow: none;
+    }
+    .lock-icon {
+      font-size: 1.2rem;
+      margin-left: 6px;
+    }
+    .node.boss, .table-card.boss {
+      border-color: #9c4dcc;
+      box-shadow: 0 0 18px rgba(156, 77, 204, 0.45);
+      background: linear-gradient(135deg, rgba(20, 0, 40, 0.9), rgba(0, 0, 0, 0.85));
+    }
+    .node h2, .table-card h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      color: var(--cyan);
+    }
+    .node.boss h2, .table-card.boss h2 { color: var(--accent2); }
+    .node p, .table-card p { margin: 4px 0 0; color: var(--muted); font-size: 0.82rem; }
+    .stars { font-size: 1.1rem; letter-spacing: 2px; color: var(--cyan); }
     .play-head {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
-    .stat {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 10px 12px;
-      font-size: 0.85rem;
+    .stat, .hud-stat {
+      background: rgba(0, 8, 12, 0.92);
+      border: 1px solid rgba(0, 255, 255, 0.35);
+      border-radius: 2px;
+      padding: 8px 10px;
+      font-size: 0.72rem;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.12), inset 0 0 20px rgba(0, 255, 255, 0.03);
+      position: relative;
     }
-    .stat b { display: block; font-size: 1.15rem; color: var(--accent2); }
-    .question {
+    .stat::before, .hud-stat::before {
+      content: ">";
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      color: rgba(0, 255, 255, 0.35);
+      font-size: 0.65rem;
+    }
+    .hud-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.68rem;
+      letter-spacing: 0.02em;
+      margin-bottom: 2px;
+      padding-right: 4px;
+    }
+    .stat b, .hud-stat b {
+      display: block;
+      font-size: 1.1rem;
+      color: var(--cyan);
+      text-shadow: 0 0 8px rgba(0, 255, 255, 0.35);
+    }
+    .clock-digits {
+      font-variant-numeric: tabular-nums;
+      animation: clock-blink 1.1s step-end infinite;
+    }
+    @keyframes clock-blink {
+      0%, 70% { opacity: 1; }
+      71%, 100% { opacity: 0.55; }
+    }
+    #sync-rate { color: #00ffcc; }
+    .cyber-progress-wrap {
+      margin-bottom: 14px;
+    }
+    .cyber-progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+      letter-spacing: 0.06em;
+    }
+    .cyber-progress-meta strong {
+      color: var(--cyan);
+      text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+    }
+    .cyber-progress {
+      position: relative;
+      height: 22px;
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid rgba(0, 255, 255, 0.45);
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.9), 0 0 12px rgba(0, 255, 255, 0.15);
+    }
+    .cyber-progress-fill {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #003d44, #00ffff, #7affff);
+      box-shadow: 0 0 18px rgba(0, 255, 255, 0.7);
+      transition: width 0.35s ease-out;
+      position: relative;
+    }
+    .cyber-progress-fill::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.35) 45%,
+        transparent 90%
+      );
+      animation: laser-sweep 1.8s linear infinite;
+    }
+    @keyframes laser-sweep {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+    .cyber-progress-wrap.overclock-green .cyber-progress-fill {
+      background: linear-gradient(90deg, #003322, #00ff66, #88ffaa);
+      box-shadow: 0 0 22px rgba(0, 255, 102, 0.75);
+    }
+    .cyber-progress-wrap.overclock-purple .cyber-progress-fill {
+      background: linear-gradient(90deg, #2a0055, #9c4dcc, #e080ff);
+      box-shadow: 0 0 24px rgba(156, 77, 204, 0.85);
+      animation: overclock-pulse 0.55s ease-in-out infinite alternate;
+    }
+    @keyframes overclock-pulse {
+      from { filter: brightness(1); }
+      to { filter: brightness(1.35); }
+    }
+    #screen-play.progress-glow-mid .choices button {
+      box-shadow: 0 0 14px rgba(0, 255, 255, 0.25), 0 0 10px rgba(98, 0, 234, 0.35);
+    }
+    #screen-play.progress-glow-high .choices button {
+      box-shadow: 0 0 18px rgba(0, 255, 255, 0.4), 0 0 14px rgba(0, 255, 204, 0.35);
+      border-color: rgba(0, 255, 255, 0.55);
+    }
+    .play-arena {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .play-upper {
+      flex: 0 0 auto;
+    }
+    .play-lower {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 5.5rem;
+      padding: 8px 4px 4px;
+      border-top: 1px dashed rgba(0, 255, 255, 0.12);
+      margin-top: 8px;
+      transition: background 0.25s, box-shadow 0.25s;
+    }
+    .play-lower--active {
+      background: radial-gradient(ellipse at center, rgba(0, 255, 120, 0.12) 0%, transparent 70%);
+      box-shadow: inset 0 0 40px rgba(0, 255, 102, 0.08);
+    }
+    .sync-banner {
+      margin: 0;
       text-align: center;
-      font-size: clamp(2rem, 10vw, 2.6rem);
+      direction: rtl;
+      font-size: clamp(1.1rem, 5vw, 1.55rem);
       font-weight: 800;
-      margin: 20px 0 8px;
-      text-shadow: 0 2px 20px rgba(108, 92, 231, 0.35);
+      letter-spacing: 0.04em;
+      color: transparent;
+      min-height: 0;
+      line-height: 1.35;
+      transition: color 0.2s, text-shadow 0.2s, transform 0.2s;
+    }
+    .sync-banner bdi {
+      direction: ltr;
+      display: inline-block;
+      unicode-bidi: isolate;
+    }
+    .sync-banner-line1,
+    .sync-banner-line2,
+    .sync-feedback-block {
+      display: block;
+    }
+    .sync-banner-line1,
+    .fb-line-top {
+      font-size: clamp(1.05rem, 4.8vw, 1.45rem);
+      line-height: 1.35;
+      display: block;
+    }
+    .fb-headline-success {
+      color: #00ff00;
+      text-shadow: 0 0 18px rgba(0, 255, 0, 0.65);
+    }
+    .fb-headline-warn {
+      color: #ff0033;
+      text-shadow: 0 0 18px rgba(255, 0, 51, 0.75);
+    }
+    .fb-text-he {
+      color: rgba(220, 245, 255, 0.88);
+      font-weight: 600;
+    }
+    .fb-chain-card {
+      display: block;
+      margin: 0.35em auto 0;
+      padding: 8px 12px;
+      max-width: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 4px;
+      box-shadow: 0 0 14px rgba(255, 255, 255, 0.08), inset 0 0 20px rgba(255, 255, 255, 0.04);
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+      font-weight: 700;
+      font-size: clamp(0.92rem, 4.1vw, 1.18rem);
+      line-height: 1.5;
+      text-align: center;
+    }
+    .fb-chain-card bdi {
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .fb-explain {
+      display: block;
+      margin-top: 0.45em;
+      padding: 0 4px;
+      color: #b388ff;
+      font-size: clamp(0.82rem, 3.7vw, 1.02rem);
+      font-weight: 600;
+      line-height: 1.45;
+      text-shadow: 0 0 12px rgba(179, 136, 255, 0.45);
+    }
+    .fb-explain--cta {
+      margin-top: 0.45em;
+    }
+    .sync-banner--success {
+      transform: none;
+    }
+    .sync-banner--calibrate {
+      color: var(--cyan);
+      text-shadow: 0 0 12px rgba(0, 255, 255, 0.45);
+      font-size: clamp(0.95rem, 4vw, 1.2rem);
+    }
+    .sync-banner--warn {
+      font-size: clamp(0.95rem, 4.2vw, 1.2rem);
+      font-weight: 700;
+    }
+    .play-lower--warn {
+      background: radial-gradient(ellipse at center, rgba(255, 0, 51, 0.14) 0%, transparent 70%);
+      box-shadow: inset 0 0 40px rgba(255, 0, 51, 0.1);
+    }
+    .matrix-log {
+      flex-shrink: 0;
+      margin-top: auto;
+      padding: 8px 2px 2px;
+      border-top: 1px solid rgba(0, 255, 80, 0.12);
+      font-size: 0.62rem;
+      line-height: 1.45;
+      color: rgba(0, 200, 90, 0.45);
+      letter-spacing: 0.02em;
+    }
+    .log-line {
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      direction: ltr;
+      text-align: left;
+      font-family: "Courier New", Courier, monospace;
+    }
+    .log-line:last-child {
+      color: rgba(0, 255, 120, 0.65);
+    }
+    .question-wrap {
+      width: 100%;
+      text-align: center;
+      margin: 12px 0 10px;
+    }
+    .question {
+      display: inline-block;
+      text-align: center;
+      font-size: clamp(2.2rem, 11vw, 2.85rem);
+      font-weight: 800;
+      margin: 0;
+      color: var(--cyan);
+      text-shadow: 0 0 20px rgba(0, 255, 255, 0.45);
     }
     .math-ltr {
       direction: ltr;
       unicode-bidi: isolate;
       display: inline-block;
-    }
-    .progress {
-      height: 8px;
-      background: #0f0f18;
-      border-radius: 8px;
-      overflow: hidden;
-      margin-bottom: 16px;
-    }
-    .progress > i {
-      display: block;
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--good));
-      width: 0%;
-      transition: width 0.25s;
     }
     .choices {
       display: grid;
@@ -164,24 +578,26 @@
       font-size: 1.25rem;
       min-height: 56px;
     }
-    .choices button.wrong { animation: shake 0.35s; background: var(--bad); box-shadow: 0 4px 0 #b33939; }
-    .choices button.right { background: var(--good); box-shadow: 0 4px 0 #008b87; }
+    .choices button.wrong {
+      animation: shake 0.35s;
+      background: linear-gradient(135deg, #aa0033, #550000);
+      border-color: #ff3355;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.35);
+    }
+    .choices button.right {
+      background: linear-gradient(135deg, #006655, #003322);
+      border-color: var(--good);
+      box-shadow: 0 0 12px rgba(0, 255, 204, 0.4);
+    }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       25% { transform: translateX(-6px); }
       75% { transform: translateX(6px); }
     }
-    .hint {
-      min-height: 3em;
-      color: var(--muted);
-      font-size: 0.9rem;
-      text-align: center;
-      margin-top: 10px;
-    }
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.85);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -189,15 +605,20 @@
       z-index: 50;
     }
     .modal {
-      background: var(--card);
-      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.92);
+      border: 2px solid #00ffff;
+      border-radius: 4px;
       padding: 20px;
       max-width: 22rem;
       width: 100%;
       text-align: center;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.35);
     }
-    .modal h3 { margin-top: 0; }
+    .modal h3 {
+      margin-top: 0;
+      color: var(--cyan);
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+    }
     .intro-text {
       color: var(--muted);
       font-size: 1rem;
@@ -205,7 +626,20 @@
       text-align: right;
       margin: 0 0 1rem;
     }
-    .intro-text strong { color: var(--accent2); }
+    .intro-text strong { color: var(--cyan); }
+    .modal-protocol {
+      background: rgba(0, 0, 0, 0.75);
+      border: 2px solid #00ffff;
+      border-radius: 4px;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.35);
+      font-family: "Courier New", Courier, monospace;
+    }
+    .modal-protocol h3 {
+      color: #00ffff;
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.45);
+      font-size: 1.05rem;
+      letter-spacing: 0.03em;
+    }
     .hidden { display: none !important; }
     footer {
       margin-top: auto;
@@ -221,16 +655,24 @@
 <body>
   <div id="app">
     <div id="screen-map">
-      <h1>הרפתקאת הכפל</h1>
-      <p class="sub">מפת שלבים · שיא אישי · קומבו ובוסים</p>
+      <h1>סייבר כפל: המאסטר המוחלט</h1>
+      <p class="sub">מטריקס שדרוג מוח · כיילו ליבות · הפכו לאלוף הכפל</p>
       <div class="row">
-        <span class="pill">סה״כ כוכבים: <strong id="total-stars">0</strong></span>
-        <span class="pill">שיא קומבו גלובלי: <strong id="best-combo-global">0</strong></span>
+        <span class="pill">סה״כ שדרוגים: <strong id="total-stars">0</strong></span>
+        <span class="pill">שיא סנכרון: <strong id="best-combo-global">0</strong></span>
       </div>
-      <div class="map" id="map-nodes"></div>
-      <footer>
+      <div class="map-wrap">
+        <div id="view-cores" class="cores-grid"></div>
+        <div id="view-core-levels" class="hidden">
+          <div class="core-levels-head">
+            <button type="button" class="secondary game-btn btn-back-cores" id="btn-back-cores">[ חזרה למפת הליבות ]</button>
+            <h2 id="core-levels-title">ליבת בסיס</h2>
+          </div>
+          <div id="core-levels-list" class="core-levels-list"></div>
+        </div>
+      </div>
+      <footer id="map-footer" class="hidden">
         <button type="button" class="hidden" id="btn-install-app">התקן אפליקציה</button>
-        <button type="button" class="secondary" id="btn-install-help">איך מתקינים על הנייד</button>
       </footer>
     </div>
 
@@ -240,15 +682,48 @@
         <span class="pill" id="level-tag"></span>
       </div>
       <div class="play-head">
-        <div class="stat">זמן<br /><b id="timer">0</b> שנ׳</div>
-        <div class="stat">קומבו<br /><b id="combo">0</b></div>
-        <div class="stat">ניקוד<br /><b id="score">0</b></div>
-        <div class="stat">שאלה<br /><b id="q-index">1</b> / <span id="q-total">20</span></div>
+        <div class="stat hud-stat">
+          <span class="hud-label">[זמן שיאון]</span>
+          <b id="timer" class="clock-digits">0</b>
+        </div>
+        <div class="stat hud-stat">
+          <span class="hud-label">[סנכרון מוח]</span>
+          <b id="sync-rate">0%</b>
+        </div>
+        <div class="stat hud-stat">
+          <span class="hud-label">[ניקוד ליבה]</span>
+          <b id="score">0</b>
+        </div>
+        <div class="stat hud-stat">
+          <span class="hud-label">[שאלות]</span>
+          <b><span id="q-index">1</span>/<span id="q-total">20</span></b>
+        </div>
       </div>
-      <div class="progress"><i id="progress-bar"></i></div>
-      <div class="question math-ltr" id="q-text">0 × 0 = ?</div>
-      <div class="choices" id="choices" dir="ltr"></div>
-      <p class="hint" id="hint"></p>
+      <div class="cyber-progress-wrap" id="cyber-progress-wrap">
+        <div class="cyber-progress-meta">
+          <span>◈ פס טעינה קוונטי</span>
+          <strong id="progress-pct-label">0%</strong>
+        </div>
+        <div class="cyber-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="cyber-progress">
+          <i id="progress-bar" class="cyber-progress-fill"></i>
+        </div>
+      </div>
+      <div class="play-arena">
+        <div class="play-upper">
+          <div class="question-wrap">
+            <div class="question math-ltr" id="q-text">0 × 0</div>
+          </div>
+          <div class="choices" id="choices" dir="ltr"></div>
+        </div>
+        <div class="play-lower" id="play-lower">
+          <p class="sync-banner" id="sync-banner" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="matrix-log" id="matrix-log">
+        <p class="log-line" id="log-line-1">[STATUS]: Awaiting neural handshake...</p>
+        <p class="log-line" id="log-line-2">[SYSTEM]: Terminal HUD online.</p>
+        <p class="log-line" id="log-line-3">[LOG]: Core calibration ready.</p>
+      </div>
     </div>
   </div>
 
@@ -260,31 +735,19 @@
       <p id="end-record" style="color:var(--muted);font-size:0.9rem;"></p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
         <button type="button" id="end-map">חזרה למפה</button>
-        <button type="button" class="secondary" id="end-retry">עוד ניסיון</button>
+        <button type="button" class="secondary game-btn" id="end-retry">שדרוג כוח</button>
       </div>
     </div>
   </div>
 
-  <div id="overlay-help" class="overlay hidden" aria-hidden="true">
-    <div class="modal" style="text-align:right;">
-      <h3>התקנה כמו אפליקציה</h3>
-      <p id="help-install-body" style="color:var(--muted);font-size:0.92rem;line-height:1.5;"></p>
-      <button type="button" id="help-close" style="width:100%;margin-top:12px;">סגור</button>
-    </div>
-  </div>
 
-  <div id="overlay-zero-intro" class="overlay hidden" aria-hidden="true">
-    <div class="modal" style="text-align:right; max-width: 24rem;">
-      <h3>טבלת 0</h3>
-      <p class="intro-text">
-        זכרו: כל מה שמכפילים ב־<span class="math-ltr">0</span> נותן תוצאה של <strong>אפס</strong>, כי הכפלנו בכלום.
-      </p>
-      <p class="intro-text">
-        <span class="math-ltr">0</span> אומר כמה פעמים של כלום הכפלנו — התוצאה תמיד תהיה כלום — <strong>0</strong>.
-      </p>
+  <div id="overlay-protocol" class="overlay hidden" aria-hidden="true">
+    <div class="modal modal-protocol" style="text-align:right; max-width: 24rem;">
+      <h3 id="protocol-title">[פרוטוקול טעינה: מעבד 0]</h3>
+      <p class="intro-text" id="protocol-body"></p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
-        <button type="button" id="zero-intro-start">בואו נתחיל</button>
-        <button type="button" class="secondary" id="zero-intro-back">חזרה למפה</button>
+        <button type="button" class="game-btn" id="protocol-start">התחל סנכרון מוח</button>
+        <button type="button" class="secondary game-btn" id="protocol-back">חזרה למפה</button>
       </div>
     </div>
   </div>
@@ -292,31 +755,105 @@
   <script>
 (function () {
   const STORAGE = "multiply_game_save_v2";
+  const PWA_INSTALLED_KEY = "multiply_game_pwa_installed";
 
   const MULT_MAX = 12;
   const QUESTIONS_PER_LEVEL = 20;
+  const FEEDBACK_DELAY = {
+    intro: 2200,
+    calibrate: 1600,
+    success: 2400,
+    successBig: 4000,
+    warn: 3200,
+  };
+
+  const SUCCESS_FEEDBACK_DEFAULT = "סנכרון מוח מלא! התקדמות מעולה!";
+
+  const SUCCESS_HEADLINES = [
+    "נכון!",
+    "הצלחה!",
+    "סינכרון מלא!",
+    "סינכרון מוחי מלא!",
+    "ליבה מסונכרנת!",
+    "קוד תקין!",
+    "מטריקס מכויל!",
+    "פרוטוקול מאושר!",
+    "שדרוג מוח הצליח!",
+    "אוברקלוק מוחי!",
+    "זרימת נתונים נקייה!",
+    "חיווט מוח תקין!",
+    "מערכת עובדת!",
+    "נתונים מסונכרנים!",
+    "כיול מושלם!",
+    "סנכרון עמוק!",
+    "ליבה יציבה!",
+    "מעבד מסונכרן!",
+    "פעימת מטריקס תקינה!",
+    "המוח במסלול!",
+  ];
+  const WRONG_FEEDBACK_DEFAULT = "התרחשה שגיאת סנכרון. נסה שוב, המוח שלך מסוגל לזה!";
+
+  const BTN_START = "כייל ליבה";
+  const BTN_RETRY = "שדרוג כוח";
+
+  const PROTOCOL_TEXTS = {
+    0: "זכרו: כל מה שמכפילים ב-0 נותן תוצאה של 0. 0 אומר כמה פעמים של כלום הכפלנו – התוצאה תמיד תהיה כלום!",
+    1: "המספר 1 הוא כמו מראה דיגיטלית. כל מספר שמכפילים ב-1 נשאר בדיוק אותו הדבר, כי שאלנו כמה זה פעם אחת של אותו מספר.",
+    2: "להכפיל ב-2 זה פשוט 'קוד כפול' – לקחת את המספר ולחבר אותו לעצמו (לעשות לו דאבל!).",
+    3: "במעבד 3 אנחנו לוקחים את המספר פעמיים (הדאבל של 2) ומוסיפים לו עוד פעם אחת של עצמו.",
+    4: "להכפיל ב-4 זה לעשות 'דאבל של דאבל'. קחו את המספר, תכפילו ב-2, ואת התוצאה תכפילו שוב ב-2!",
+    5: "הסוד של מעבד 5 הוא שכל התוצאות שלו מסתיימות תמיד ב-0 או ב-5. הוא תמיד חצי מלוח ה-10.",
+    6: "מעבד 6 הוא החבר הכפול של מעבד 3. מצאו את התוצאה של כפל ב-3, ותעשו לה דאבל (כפול 2)!",
+    7: "מעבד 7 הוא אתגר החיווט של המוח. הדרך הכי קלה היא להשתמש במה שכבר למדנו מהמעבדים הקודמים.",
+    8: "להכפיל ב-8 זה לעשות דאבל, עוד דאבל, ועוד דאבל! (3 פעמים להכפיל ב-2).",
+    9: "טריק המחשב של מעבד 9: התוצאה היא תמיד מכפלה ב-10 פחות פעם אחת של המספר עצמו.",
+    10: "המעבד הכי קל במערכת! פשוט לוקחים את המספר המקורי ומדביקים לו את הספרה 0 בצד ימין.",
+    11: "במעבד 11, כל מספר חד-ספרתי פשוט משכפל את עצמו פעמיים (כמו 55, 66, 77).",
+    12: "פסגת המעבדים! להכפיל ב-12 זה לקחת את המספר כפול 10 (להוסיף 0) ועוד פעמיים של המספר עצמו.",
+  };
 
   const LEVELS = [
-    { id: 0, type: "table", table: 0, title: "טבלת 0", desc: "20 שאלות · כל הכפולות 0–12" },
-    { id: 1, type: "table", table: 1, title: "טבלת 1", desc: "" },
-    { id: 2, type: "boss", title: "בוס קטן", desc: "כפול 0–12 · 20 שאלות" },
-    { id: 3, type: "table", table: 2, title: "טבלת 2", desc: "" },
-    { id: 4, type: "table", table: 3, title: "טבלת 3", desc: "" },
-    { id: 5, type: "boss", title: "בוס", desc: "כפול 0–12" },
-    { id: 6, type: "table", table: 4, title: "טבלת 4", desc: "" },
-    { id: 7, type: "table", table: 5, title: "טבלת 5", desc: "" },
-    { id: 8, type: "boss", title: "בוס", desc: "כפול 0–12" },
-    { id: 9, type: "table", table: 6, title: "טבלת 6", desc: "" },
-    { id: 10, type: "table", table: 7, title: "טבלת 7", desc: "" },
-    { id: 11, type: "boss", title: "בוס", desc: "כפול 0–12" },
-    { id: 12, type: "table", table: 8, title: "טבלת 8", desc: "" },
-    { id: 13, type: "table", table: 9, title: "טבלת 9", desc: "" },
-    { id: 14, type: "boss", title: "בוס", desc: "כפול 0–12" },
-    { id: 15, type: "table", table: 10, title: "טבלת 10", desc: "" },
-    { id: 16, type: "table", table: 11, title: "טבלת 11", desc: "" },
-    { id: 17, type: "boss", title: "בוס", desc: "כפול 0–12" },
-    { id: 18, type: "table", table: 12, title: "טבלת 12", desc: "" },
-    { id: 19, type: "boss", title: "בוס עליון", desc: "כפול 0–12" },
+    { id: 0, type: "table", table: 0, title: "שדרוג מעבד 0", desc: "20 שאלות · כל הכפולות 0–12" },
+    { id: 1, type: "table", table: 1, title: "שדרוג מעבד 1", desc: "" },
+    { id: 2, type: "boss", title: "בוס: שער לוגי אלפא", desc: "מטריקס כפל 0–12 · 20 שאלות" },
+    { id: 3, type: "table", table: 2, title: "שדרוג מעבד 2", desc: "" },
+    { id: 4, type: "table", table: 3, title: "שדרוג מעבד 3", desc: "" },
+    { id: 5, type: "boss", title: "בוס: שער לוגי בטא", desc: "מטריקס כפל 0–12" },
+    { id: 6, type: "table", table: 4, title: "שדרוג מעבד 4", desc: "" },
+    { id: 7, type: "table", table: 5, title: "שדרוג מעבד 5", desc: "" },
+    { id: 8, type: "boss", title: "בוס: חומת אש קריטית", desc: "מטריקס כפל 0–12" },
+    { id: 9, type: "table", table: 6, title: "שדרוג מעבד 6", desc: "" },
+    { id: 10, type: "table", table: 7, title: "שדרוג מעבד 7", desc: "" },
+    { id: 11, type: "boss", title: "בוס: חומת אש מוחלטת", desc: "מטריקס כפל 0–12" },
+    { id: 12, type: "table", table: 8, title: "שדרוג מעבד 8", desc: "" },
+    { id: 13, type: "table", table: 9, title: "שדרוג מעבד 9", desc: "" },
+    { id: 14, type: "boss", title: "בוס: קריסת מערכות", desc: "מטריקס כפל 0–12" },
+    { id: 15, type: "table", table: 10, title: "שדרוג מעבד 10", desc: "" },
+    { id: 16, type: "table", table: 11, title: "שדרוג מעבד 11", desc: "" },
+    { id: 17, type: "boss", title: "בוס: עומס ליבה כפול", desc: "מטריקס כפל 0–12" },
+    { id: 18, type: "table", table: 12, title: "שדרוג מעבד 12", desc: "" },
+    { id: 19, type: "boss", title: "הביג בוס: מוח מוחלט", desc: "מטריקס כפל 0–12" },
+  ];
+
+  const CORES = [
+    {
+      id: 0,
+      title: "ליבת בסיס",
+      desc: "מעבדים 0–3 · בוסי שער לוגי אלפא ובטא",
+      levelIds: [0, 1, 2, 3, 4, 5],
+    },
+    {
+      id: 1,
+      title: "ליבת מומחה",
+      desc: "מעבדים 4–7 · בוסי חומת האש",
+      levelIds: [6, 7, 8, 9, 10, 11],
+    },
+    {
+      id: 2,
+      title: "ליבת על",
+      desc: "מעבדים 8–12 · קריסת מערכות והביג בוס",
+      levelIds: [12, 13, 14, 15, 16, 17, 18, 19],
+    },
   ];
 
   function loadSave() {
@@ -335,15 +872,345 @@
 
   function isUnlocked(id) {
     if (id === 0) return true;
+    const L = LEVELS[id];
+    if (L.type === "boss") {
+      let tablesNeeded = 2;
+      for (let i = id - 1; i >= 0 && tablesNeeded > 0; i--) {
+        if (LEVELS[i].type === "table") {
+          const st = state.save.levels[String(LEVELS[i].id)];
+          if (!st || st.stars < 1) return false;
+          tablesNeeded--;
+        }
+      }
+      return tablesNeeded === 0;
+    }
     const prev = LEVELS[id - 1];
     const st = state.save.levels[String(prev.id)];
     return st && st.stars >= 1;
+  }
+
+  function isCoreUnlocked(coreIndex) {
+    if (coreIndex === 0) return true;
+    const prev = CORES[coreIndex - 1];
+    return prev.levelIds.every((levelId) => {
+      const st = state.save.levels[String(levelId)];
+      return st && st.stars >= 1;
+    });
+  }
+
+  function showMapView(view) {
+    const cores = view === "cores";
+    el("view-cores").classList.toggle("hidden", !cores);
+    el("view-core-levels").classList.toggle("hidden", cores);
+  }
+
+  function returnToMapHome() {
+    state.activeCoreId = null;
+    renderCores();
+    showMapView("cores");
+    showScreen("map");
+  }
+
+  function returnToCoreLevels() {
+    if (state.activeCoreId === null) {
+      returnToMapHome();
+      return;
+    }
+    renderCoreLevels(state.activeCoreId);
+    showMapView("core-levels");
+    showScreen("map");
   }
 
   function starString(n) {
     const f = "★".repeat(n);
     const e = "☆".repeat(3 - n);
     return f + e;
+  }
+
+  function getSyncPercent() {
+    return Math.min(100, Math.round((state.correct / QUESTIONS_PER_LEVEL) * 100));
+  }
+
+  function setCyberProgress(pct) {
+    const n = Math.min(100, Math.max(0, Math.round(pct)));
+    el("progress-bar").style.width = n + "%";
+    el("progress-pct-label").textContent = n + "%";
+    const bar = el("cyber-progress");
+    if (bar) bar.setAttribute("aria-valuenow", String(n));
+    const play = el("screen-play");
+    play.classList.remove("progress-glow-mid", "progress-glow-high");
+    if (n >= 25) play.classList.add("progress-glow-mid");
+    if (n >= 55) play.classList.add("progress-glow-high");
+    const wrap = el("cyber-progress-wrap");
+    wrap.classList.toggle("overclock-green", state.combo >= 3 && state.combo < 6);
+    wrap.classList.toggle("overclock-purple", state.combo >= 6);
+  }
+
+  function updateSyncHud() {
+    el("sync-rate").textContent = getSyncPercent() + "%";
+    el("score").textContent = String(state.score);
+  }
+
+  function getLevelTableNum() {
+    const L = LEVELS[state.levelId];
+    return L.type === "table" ? L.table : null;
+  }
+
+  function ltrBdi(expr) {
+    return (
+      '<bdi style="direction: ltr; display: inline-block;">' + expr + "</bdi>"
+    );
+  }
+
+  function ltrMath(expr) {
+    return ltrBdi(expr);
+  }
+
+  function formatMulExpr(a, b, includeAnswer) {
+    let s = a + " × " + b;
+    if (includeAnswer) s += " = " + a * b;
+    return ltrBdi(s);
+  }
+
+  const COUNT_TIMES_HE = [
+    "",
+    "פעם אחת",
+    "פעמיים",
+    "שלוש פעמים",
+    "ארבע פעמים",
+    "חמש פעמים",
+    "שש פעמים",
+    "שבע פעמים",
+    "שמונה פעמים",
+    "תשע פעמים",
+    "עשר פעמים",
+    "אחת עשרה פעמים",
+    "שתים עשרה פעמים",
+  ];
+
+  function countTimesHebrew(count) {
+    if (count >= 0 && count < COUNT_TIMES_HE.length) return COUNT_TIMES_HE[count];
+    return ltrBdi(String(count)) + " פעמים";
+  }
+
+  /** מפרק a×b לחיבור חוזר (לפי סדר התצוגה a × b) */
+  function getRepeatedAdditionParts(a, b) {
+    if (a === 0 || b === 0) {
+      const count = a === 0 && b === 0 ? 1 : Math.max(a, b);
+      return { addend: 0, count };
+    }
+    const table = getLevelTableNum();
+    if (table !== null) {
+      if (b === table) return { addend: b, count: a };
+      if (a === table) return { addend: a, count: b };
+    }
+    const count = Math.min(a, b);
+    const addend = Math.max(a, b);
+    return { addend, count };
+  }
+
+  function buildRepeatedAdditionHintChain(addend, count) {
+    if (count <= 1) return String(addend);
+    const terms = [];
+    for (let i = 0; i < count; i++) terms.push(String(addend));
+    return terms.join(" + ");
+  }
+
+  function buildRepeatedAdditionChain(addend, count) {
+    const product = addend * count;
+    if (count <= 1) {
+      return String(addend) + " = " + product;
+    }
+    const terms = [];
+    for (let i = 0; i < count; i++) terms.push(String(addend));
+    return terms.join(" + ") + " = " + product;
+  }
+
+  function buildRepeatedAdditionExplain(addend, count) {
+    const times = countTimesHebrew(count);
+    return "(כי חיברנו את " + addend + " " + times + ")";
+  }
+
+  function pickSuccessHeadline() {
+    return SUCCESS_HEADLINES[rnd(0, SUCCESS_HEADLINES.length - 1)];
+  }
+
+  function pickSuccessTagline() {
+    const table = getLevelTableNum();
+    if (!state.current || table === null) {
+      const generic = [
+        "התקדמות מעולה!",
+        "המשך לסנכרן את הליבה!",
+        "עוד צעד קדימה במטריקס!",
+      ];
+      return generic[rnd(0, generic.length - 1)];
+    }
+    const { a, b } = state.current;
+    const n = getExerciseBaseNum(table);
+
+    if (table === 0) {
+      const opts = [
+        formatMulExpr(a, b, false) + " – זה עדיין כלום!",
+        formatMulExpr(a, b, true) + " – בדיוק כמו שצריך!",
+      ];
+      return opts[rnd(0, opts.length - 1)];
+    }
+    if (table === 1) {
+      return (
+        ltrBdi(String(n)) +
+        " במראה — נשאר בדיוק " +
+        ltrBdi(String(n)) +
+        "!"
+      );
+    }
+    if (table === 2) {
+      return (
+        "הדאבל של " +
+        ltrBdi(String(n)) +
+        " הוא " +
+        ltrBdi(String(n * 2)) +
+        "!"
+      );
+    }
+    if (table === 3) {
+      return (
+        "לקחנו דאבל של " +
+        ltrBdi(String(n)) +
+        " והוספנו עוד " +
+        ltrBdi(String(n)) +
+        "!"
+      );
+    }
+    return "התקדמות מעולה!";
+  }
+
+  function buildSuccessTopLine() {
+    return (
+      '<span class="fb-headline-success">' +
+      pickSuccessHeadline() +
+      "</span> " +
+      '<span class="fb-text-he">' +
+      pickSuccessTagline() +
+      "</span>"
+    );
+  }
+
+  function buildSuccessFeedbackHtml(overrideLine1) {
+    if (!state.current) {
+      return overrideLine1 != null
+        ? '<span class="fb-headline-success">' + overrideLine1 + "</span>"
+        : SUCCESS_FEEDBACK_DEFAULT;
+    }
+    const topLine =
+      overrideLine1 != null
+        ? '<span class="fb-headline-success">' + overrideLine1 + "</span>"
+        : buildSuccessTopLine();
+    const { answer } = state.current;
+    const parts = getRepeatedAdditionParts(state.current.a, state.current.b);
+    const chain = buildRepeatedAdditionChain(parts.addend, parts.count);
+    const explain = buildRepeatedAdditionExplain(parts.addend, parts.count);
+    return (
+      '<span class="sync-feedback-block" dir="rtl">' +
+      '<span class="fb-line-top">' +
+      topLine +
+      "</span>" +
+      '<span class="fb-chain-card">' +
+      ltrBdi(chain) +
+      " באמת שווה " +
+      ltrBdi(String(answer)) +
+      "!</span>" +
+      '<span class="fb-explain">' +
+      explain +
+      "</span></span>"
+    );
+  }
+
+  /** הגורם שאינו מספר הטבלה (למשל ב-6×2 → 6) */
+  function getExerciseBaseNum(tableNum) {
+    if (!state.current) return 0;
+    const { a, b } = state.current;
+    if (a === tableNum && b !== tableNum) return b;
+    if (b === tableNum && a !== tableNum) return a;
+    if (tableNum === 0) {
+      if (a === 0 && b !== 0) return b;
+      if (b === 0 && a !== 0) return a;
+      return a;
+    }
+    if (tableNum === 1) {
+      if (a === 1) return b;
+      if (b === 1) return a;
+    }
+    return a;
+  }
+
+  function buildWrongFeedbackHtml() {
+    if (!state.current) return WRONG_FEEDBACK_DEFAULT;
+    const parts = getRepeatedAdditionParts(state.current.a, state.current.b);
+    const chain = ltrBdi(buildRepeatedAdditionHintChain(parts.addend, parts.count));
+    const table = getLevelTableNum();
+    const headline = table === 0 ? "שגיאת מערכת!" : "סטיית כיול!";
+    const intro = table === 0 ? "זכור שזה פשוט:" : "תחשוב על זה ככה:";
+    const cta = table === 0 ? "כמה קיבלת? נסה שוב!" : "כמה זה ביחד? נסה שוב!";
+
+    return (
+      '<span class="sync-feedback-block" dir="rtl">' +
+      '<span class="fb-headline-warn">' +
+      headline +
+      "</span> " +
+      '<span class="fb-text-he">' +
+      intro +
+      "</span>" +
+      '<span class="fb-chain-card">' +
+      chain +
+      "</span>" +
+      '<span class="fb-explain fb-explain--cta">' +
+      cta +
+      "</span></span>"
+    );
+  }
+
+  function setSyncBanner(text, mood) {
+    const b = el("sync-banner");
+    const lower = el("play-lower");
+    if (text.indexOf("<bdi") !== -1 || text.indexOf("<span") !== -1) {
+      b.innerHTML = text;
+    } else {
+      b.textContent = text;
+    }
+    b.className = "sync-banner" + (mood ? " sync-banner--" + mood : "");
+    state.lastBannerMood = mood || "";
+    lower.classList.toggle("play-lower--active", mood === "success");
+    lower.classList.toggle("play-lower--warn", mood === "warn");
+  }
+
+  function getPickDelayMs(ok) {
+    if (!ok) return FEEDBACK_DELAY.warn;
+    const mood = state.lastBannerMood;
+    if (mood === "success") return FEEDBACK_DELAY.successBig;
+    if (mood === "calibrate") return FEEDBACK_DELAY.calibrate;
+    return FEEDBACK_DELAY.success;
+  }
+
+  function pushMatrixLog(line) {
+    const l1 = el("log-line-1");
+    const l2 = el("log-line-2");
+    const l3 = el("log-line-3");
+    if (!l1) return;
+    l1.textContent = l2.textContent;
+    l2.textContent = l3.textContent;
+    l3.textContent = line;
+  }
+
+  function resetPlayTerminal() {
+    setCyberProgress(0);
+    updateSyncHud();
+    setSyncBanner("", "");
+    el("play-lower").classList.remove("play-lower--active", "play-lower--warn");
+    el("screen-play").classList.remove("progress-glow-mid", "progress-glow-high");
+    el("cyber-progress-wrap").classList.remove("overclock-green", "overclock-purple");
+    el("log-line-1").textContent = "[STATUS]: Awaiting neural handshake...";
+    el("log-line-2").textContent = "[SYSTEM]: Terminal HUD online.";
+    el("log-line-3").textContent = "[LOG]: Core calibration ready.";
   }
 
   const state = {
@@ -361,6 +1228,9 @@
     choices: [],
     lockedInput: false,
     questionQueue: [],
+    activeCoreId: null,
+    questionStartTime: 0,
+    lastBannerMood: "",
   };
 
   function el(id) {
@@ -434,55 +1304,118 @@
     return Array.from(set).slice(0, 3);
   }
 
-  function renderMap() {
+  function createLevelNode(L) {
+    const st = state.save.levels[String(L.id)] || {
+      stars: 0,
+      bestScore: 0,
+      bestCombo: 0,
+      bestTimeSec: null,
+    };
+    const unlocked = isUnlocked(L.id);
+    const div = document.createElement("div");
+    div.className =
+      "node table-card" +
+      (L.type === "boss" ? " boss" : "") +
+      (!unlocked ? " locked" : "");
+    const lockHtml = unlocked ? "" : '<span class="lock-icon" aria-hidden="true">🔒</span> ';
+    div.innerHTML =
+      "<div><h2>" +
+      lockHtml +
+      L.title +
+      "</h2><p>" +
+      (unlocked
+        ? L.desc || "השלימו שדרוג כדי לפתוח את השלב הבא"
+        : "נעול — השלימו את השלב הקודם עם כוכב אחד לפחות") +
+      "</p>" +
+      (st.stars > 0
+        ? "<p class=\"stars\">" +
+          starString(st.stars) +
+          "</p><p style=\"font-size:0.78rem;color:var(--muted)\">שיא ניקוד: " +
+          st.bestScore +
+          " · שיא סנכרון: " +
+          st.bestCombo +
+          (st.bestTimeSec != null ? " · זמן שיא: " + st.bestTimeSec + " שנ׳" : "") +
+          "</p>"
+        : "") +
+      "</div>";
+    if (unlocked) {
+      const go = document.createElement("button");
+      go.type = "button";
+      go.className = "game-btn";
+      go.textContent = st.stars ? BTN_RETRY : BTN_START;
+      go.addEventListener("click", () => startLevel(L.id));
+      div.appendChild(go);
+    } else {
+      const sp = document.createElement("span");
+      sp.className = "pill";
+      sp.textContent = "🔒 נעול";
+      div.appendChild(sp);
+    }
+    return div;
+  }
+
+  function renderCores() {
+    const host = el("view-cores");
+    host.innerHTML = "";
+    CORES.forEach((core, coreIndex) => {
+      const unlocked = isCoreUnlocked(coreIndex);
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "core-card" + (unlocked ? "" : " core-card--locked");
+      card.disabled = !unlocked;
+      card.innerHTML =
+        (unlocked ? "" : '<span class="core-lock" aria-hidden="true">🔒</span>') +
+        "<h2>" +
+        core.title +
+        "</h2><p>" +
+        core.desc +
+        "</p>" +
+        (unlocked ? '<span class="core-enter">▸ כניסה לשלבים</span>' : "<span>השלימו את הליבה הקודמת</span>");
+      if (unlocked) {
+        card.addEventListener("click", () => openCore(coreIndex));
+      }
+      host.appendChild(card);
+    });
+  }
+
+  function openCore(coreIndex) {
+    if (!isCoreUnlocked(coreIndex)) return;
+    state.activeCoreId = coreIndex;
+    renderCoreLevels(coreIndex);
+    showMapView("core-levels");
+    showScreen("map");
+  }
+
+  function renderCoreLevels(coreIndex) {
+    const core = CORES[coreIndex];
+    el("core-levels-title").textContent = core.title;
+    const host = el("core-levels-list");
+    host.innerHTML = "";
+    core.levelIds.forEach((levelId) => {
+      host.appendChild(createLevelNode(LEVELS[levelId]));
+    });
+  }
+
+  function updateGlobalStats() {
     state.save = loadSave();
     let totalStars = 0;
     for (let i = 0; i < LEVELS.length; i++) {
-      const L = LEVELS[i];
-      const st = state.save.levels[String(L.id)] || { stars: 0, bestScore: 0, bestCombo: 0, bestTimeSec: null };
+      const st = state.save.levels[String(LEVELS[i].id)] || { stars: 0 };
       totalStars += st.stars || 0;
     }
     el("total-stars").textContent = String(totalStars);
     el("best-combo-global").textContent = String(state.save.bestComboEver || 0);
+  }
 
-    const host = el("map-nodes");
-    host.innerHTML = "";
-    LEVELS.forEach((L) => {
-      const st = state.save.levels[String(L.id)] || { stars: 0, bestScore: 0, bestCombo: 0, bestTimeSec: null };
-      const unlocked = isUnlocked(L.id);
-      const div = document.createElement("div");
-      div.className = "node" + (L.type === "boss" ? " boss" : "") + (!unlocked ? " locked" : "");
-      div.innerHTML =
-        "<div><h2>" +
-        L.title +
-        "</h2><p>" +
-        (L.desc || "נצחו את השלב כדי לפתוח את הבא") +
-        "</p>" +
-        (st.stars > 0
-          ? "<p class=\"stars\">" +
-            starString(st.stars) +
-            "</p><p style=\"font-size:0.78rem;color:var(--muted)\">שיא ניקוד: " +
-            st.bestScore +
-            " · שיא קומבו בשלב: " +
-            st.bestCombo +
-            (st.bestTimeSec != null ? " · זמן שיא: " + st.bestTimeSec + " שנ׳" : "") +
-            "</p>"
-          : "") +
-        "</div>";
-      if (unlocked) {
-        const go = document.createElement("button");
-        go.type = "button";
-        go.textContent = st.stars ? "שחק שוב" : "התחל";
-        go.addEventListener("click", () => startLevel(L.id));
-        div.appendChild(go);
-      } else {
-        const sp = document.createElement("span");
-        sp.className = "pill";
-        sp.textContent = "נעול";
-        div.appendChild(sp);
-      }
-      host.appendChild(div);
-    });
+  function renderMap() {
+    updateGlobalStats();
+    if (state.activeCoreId !== null) {
+      renderCoreLevels(state.activeCoreId);
+      showMapView("core-levels");
+    } else {
+      renderCores();
+      showMapView("cores");
+    }
   }
 
   function showScreen(name) {
@@ -507,14 +1440,16 @@
     }, 500);
   }
 
-  function showZeroIntro() {
-    el("overlay-zero-intro").classList.remove("hidden");
-    el("overlay-zero-intro").setAttribute("aria-hidden", "false");
+  function showProtocolIntro(tableNum) {
+    el("protocol-title").textContent = "[פרוטוקול טעינה: מעבד " + tableNum + "]";
+    el("protocol-body").textContent = PROTOCOL_TEXTS[tableNum] || "";
+    el("overlay-protocol").classList.remove("hidden");
+    el("overlay-protocol").setAttribute("aria-hidden", "false");
   }
 
-  function hideZeroIntro() {
-    el("overlay-zero-intro").classList.add("hidden");
-    el("overlay-zero-intro").setAttribute("aria-hidden", "true");
+  function hideProtocolIntro() {
+    el("overlay-protocol").classList.add("hidden");
+    el("overlay-protocol").setAttribute("aria-hidden", "true");
   }
 
   function prepareLevel(levelId) {
@@ -532,24 +1467,25 @@
       state.questionQueue = buildBossQuestionQueue();
     }
     el("level-tag").textContent = L.title;
-    el("hint").textContent = "";
-    el("combo").textContent = "0";
-    el("score").textContent = "0";
     el("timer").textContent = "0";
-    el("progress-bar").style.width = "0%";
+    resetPlayTerminal();
   }
 
   function beginLevelPlay() {
+    const L = LEVELS[state.levelId];
+    el("screen-play").classList.toggle("boss-mode", L.type === "boss");
     showScreen("play");
     startTimer();
-    nextQuestion();
+    pushMatrixLog("[STATUS]: Brain capacity scaling...");
+    setSyncBanner("מתחילים כיול ליבה...", "calibrate");
+    setTimeout(() => nextQuestion(), FEEDBACK_DELAY.intro);
   }
 
   function startLevel(levelId) {
     prepareLevel(levelId);
     const L = LEVELS[levelId];
-    if (L.type === "table" && L.table === 0) {
-      showZeroIntro();
+    if (L.type === "table") {
+      showProtocolIntro(L.table);
       return;
     }
     beginLevelPlay();
@@ -566,9 +1502,14 @@
     state.choices = wrongAnswers(state.current.answer);
     const pos = rnd(0, 3);
     state.choices.splice(pos, 0, state.current.answer);
-    el("q-text").textContent = state.current.a + " × " + state.current.b + " = ?";
+    el("q-text").textContent = state.current.a + " × " + state.current.b;
     el("q-index").textContent = String(state.q);
-    el("progress-bar").style.width = String(((state.q - 1) / QUESTIONS_PER_LEVEL) * 100) + "%";
+    state.questionStartTime = Date.now();
+    setCyberProgress(((state.q - 1) / QUESTIONS_PER_LEVEL) * 100);
+    pushMatrixLog(
+      "[STATUS]: Loading question " + state.q + "/" + QUESTIONS_PER_LEVEL + "..."
+    );
+    el("play-lower").classList.remove("play-lower--active", "play-lower--warn");
     const box = el("choices");
     box.innerHTML = "";
     state.choices.forEach((val) => {
@@ -579,41 +1520,67 @@
       box.appendChild(b);
     });
     state.lockedInput = false;
-    el("hint").textContent = "";
+  }
+
+  function unlockQuestionRetry() {
+    const box = el("choices");
+    if (box) {
+      box.querySelectorAll("button").forEach((b) => {
+        if (!b.classList.contains("wrong")) {
+          b.disabled = false;
+        }
+      });
+    }
+    state.lockedInput = false;
+    pushMatrixLog("[STATUS]: Retry open — Q" + state.q + " until sync OK.");
   }
 
   function onPick(val, btn) {
     if (state.lockedInput || state.screen !== "play") return;
+    if (btn.disabled) return;
     state.lockedInput = true;
     const ok = val === state.current.answer;
+    const answerSec = ((Date.now() - state.questionStartTime) / 1000).toFixed(1);
     if (ok) {
       btn.classList.add("right");
+      el("choices").querySelectorAll("button").forEach((b) => {
+        b.disabled = true;
+      });
       state.correct += 1;
       state.combo += 1;
       if (state.combo > state.maxCombo) state.maxCombo = state.combo;
       state.score += 10 + Math.min(state.combo, 10) * 2;
-      el("combo").textContent = String(state.combo);
-      el("score").textContent = String(state.score);
-      el("hint").textContent = state.combo >= 3 ? "קומבו! ככה ממשיכים!" : "מעולה!";
+      updateSyncHud();
+      setCyberProgress((state.q / QUESTIONS_PER_LEVEL) * 100);
+      if (getSyncPercent() >= 100) {
+        setSyncBanner(buildSuccessFeedbackHtml("כיול ליבה הושלם — 100%!"), "success");
+        pushMatrixLog("[STATUS]: Core calibration complete — 100% sync.");
+      } else {
+        setSyncBanner(buildSuccessFeedbackHtml(), "success");
+      }
+      if (state.combo >= 6) {
+        pushMatrixLog("[OVERCLOCK]: Neural chain x" + state.combo + " active.");
+      } else {
+        pushMatrixLog("[SYSTEM]: Processor " + (getLevelTableNum() ?? "BOSS") + " sync OK.");
+      }
+      pushMatrixLog("[LOG]: Answer matrix verified in " + answerSec + "s.");
+      setTimeout(() => {
+        nextQuestion();
+      }, getPickDelayMs(true));
     } else {
       btn.classList.add("wrong");
+      btn.disabled = true;
       state.combo = 0;
-      el("combo").textContent = "0";
-      el("hint").innerHTML =
-        "לא נורא — התשובה היא " +
-        state.current.answer +
-        '. זוכרים: <span class="math-ltr">' +
-        state.current.a +
-        " × " +
-        state.current.b +
-        " = " +
-        state.current.answer +
-        "</span>";
+      updateSyncHud();
+      setCyberProgress(((state.q - 1) / QUESTIONS_PER_LEVEL) * 100);
+      el("cyber-progress-wrap").classList.remove("overclock-green", "overclock-purple");
+      setSyncBanner(buildWrongFeedbackHtml(), "warn");
+      pushMatrixLog("[WARN]: Sync desync on Q" + state.q + " — expected " + state.current.answer + ".");
+      pushMatrixLog("[LOG]: Hint chain shown — retry same question.");
+      setTimeout(() => {
+        unlockQuestionRetry();
+      }, FEEDBACK_DELAY.warn);
     }
-    el("progress-bar").style.width = String((state.q / QUESTIONS_PER_LEVEL) * 100) + "%";
-    setTimeout(() => {
-      nextQuestion();
-    }, ok ? 450 : 1200);
   }
 
   function calcStars(correct, maxCombo, timeSec) {
@@ -700,7 +1667,7 @@
   el("end-map").addEventListener("click", () => {
     closeEnd();
     renderMap();
-    showScreen("map");
+    returnToCoreLevels();
   });
   el("end-retry").addEventListener("click", () => {
     closeEnd();
@@ -709,62 +1676,89 @@
   el("btn-quit").addEventListener("click", () => {
     if (!confirm("לצאת מהשלב?")) return;
     stopTimer();
-    showScreen("map");
+    el("screen-play").classList.remove("boss-mode");
     renderMap();
+    returnToCoreLevels();
   });
-  const isIOS =
-    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const isStandalone =
     window.matchMedia("(display-mode: standalone)").matches ||
     window.navigator.standalone === true;
 
   let deferredInstallPrompt = null;
 
+  function markPwaInstalled() {
+    try {
+      localStorage.setItem(PWA_INSTALLED_KEY, "1");
+    } catch (_) {}
+  }
+
+  function wasPwaInstalled() {
+    try {
+      return localStorage.getItem(PWA_INSTALLED_KEY) === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function updateInstallUi() {
+    const btn = el("btn-install-app");
+    const footer = el("map-footer");
+    if (isStandalone) {
+      markPwaInstalled();
+      deferredInstallPrompt = null;
+      btn.classList.add("hidden");
+      footer.classList.add("hidden");
+      return;
+    }
+    const canInstall = !!deferredInstallPrompt;
+    const show = canInstall && !wasPwaInstalled();
+    btn.classList.toggle("hidden", !show);
+    footer.classList.toggle("hidden", !show);
+  }
+
+  if (isStandalone) {
+    markPwaInstalled();
+  }
+
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
-    if (!isStandalone) {
-      el("btn-install-app").classList.remove("hidden");
-    }
+    try {
+      localStorage.removeItem(PWA_INSTALLED_KEY);
+    } catch (_) {}
+    updateInstallUi();
   });
 
   window.addEventListener("appinstalled", () => {
     deferredInstallPrompt = null;
-    el("btn-install-app").classList.add("hidden");
+    markPwaInstalled();
+    updateInstallUi();
   });
 
   el("btn-install-app").addEventListener("click", async () => {
     if (!deferredInstallPrompt) return;
     deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice;
+    const { outcome } = await deferredInstallPrompt.userChoice;
     deferredInstallPrompt = null;
-    el("btn-install-app").classList.add("hidden");
+    if (outcome === "accepted") {
+      markPwaInstalled();
+    }
+    updateInstallUi();
   });
 
-  el("help-install-body").innerHTML = isIOS
-    ? "<b>באייפון אין כפתור «התקן אפליקציה».</b> זה תקין — אפל «הוסף למסך הבית» <b>הוא</b> ההתקנה (ספארי בלבד: שיתוף ↑ → הוסף למסך הבית). אחרי זה האייקון נפתח במסך מלא כמו אפליקציה."
-    : "<b>אנדרואיד (כרום):</b> אם מופיע למעלה כפתור «התקן אפליקציה» — לחצו עליו. אחרת: תפריט ⋮ → «התקן אפליקציה» / «הוסף למסך הבית».<br /><br />חייבים לפתוח את הקישור מ-Vercel (HTTPS), לא מכתובת מחשב מקומית (http://192.168…).";
-  if (isIOS && !isStandalone) {
-    el("btn-install-help").textContent = "איך מוסיפים למסך הבית (אייפון)";
-  }
+  updateInstallUi();
 
-  el("btn-install-help").addEventListener("click", () => {
-    el("overlay-help").classList.remove("hidden");
-    el("overlay-help").setAttribute("aria-hidden", "false");
-  });
-  el("help-close").addEventListener("click", () => {
-    el("overlay-help").classList.add("hidden");
-    el("overlay-help").setAttribute("aria-hidden", "true");
-  });
-
-  el("zero-intro-start").addEventListener("click", () => {
-    hideZeroIntro();
+  el("protocol-start").addEventListener("click", () => {
+    hideProtocolIntro();
     beginLevelPlay();
   });
-  el("zero-intro-back").addEventListener("click", () => {
-    hideZeroIntro();
-    showScreen("map");
+  el("protocol-back").addEventListener("click", () => {
+    hideProtocolIntro();
+    returnToCoreLevels();
+  });
+
+  el("btn-back-cores").addEventListener("click", () => {
+    returnToMapHome();
   });
 
   if ("serviceWorker" in navigator && window.isSecureContext) {

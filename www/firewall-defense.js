@@ -256,33 +256,18 @@
     const scoreEl = $("fw-score");
     const tableEl = $("fw-table-label");
     const highEl = $("fw-high-score");
-    const speedEl = $("fw-speed-tier");
     const qCur = $("fw-q-cur");
     const qTotal = $("fw-q-total");
-    const qLeft = $("fw-q-left");
-    const progFill = $("fw-progress-fill");
-    const progLabel = $("fw-progress-label");
-    const progBar = $("fw-progress");
-
-    const left = questionsLeft();
     const cur = Math.min(questionsDone + (hasLiveDrop() ? 1 : 0), QUESTIONS_PER_SESSION);
     const pct = Math.round((questionsDone / QUESTIONS_PER_SESSION) * 100);
 
     if (scoreEl) scoreEl.textContent = String(score);
-    if (tableEl) tableEl.textContent = "מעבד " + tableNum;
+    if (tableEl) tableEl.textContent = String(tableNum);
     if (highEl) highEl.textContent = String(getHighScore(tableNum));
-    if (speedEl) {
-      const sp = Math.round(((getFallSpeed() / FALL_BASE) - 1) * 100);
-      speedEl.textContent = sp > 0 ? "+" + sp + "%" : "×1";
-    }
     if (qCur) qCur.textContent = String(cur || 1);
     if (qTotal) qTotal.textContent = String(QUESTIONS_PER_SESSION);
-    if (qLeft) qLeft.textContent = String(left);
-    if (progFill) progFill.style.width = pct + "%";
-    if (progLabel) progLabel.textContent = pct + "%";
     const progPct = $("fw-progress-pct");
     if (progPct) progPct.textContent = pct + "%";
-    if (progBar) progBar.setAttribute("aria-valuenow", String(pct));
 
     const expr = $("fw-gate-expr");
     if (expr) expr.textContent = "× " + tableNum;

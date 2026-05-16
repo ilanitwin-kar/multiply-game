@@ -408,6 +408,32 @@
       background: linear-gradient(180deg, rgba(0, 8, 20, 0.95) 0%, rgba(20, 0, 0, 0.85) 100%);
       overflow: hidden;
       box-shadow: inset 0 0 40px rgba(255, 85, 0, 0.08);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .fw-arena--paused {
+      filter: brightness(0.5);
+    }
+    .fw-pause-hint {
+      position: absolute;
+      inset: 0;
+      z-index: 12;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      pointer-events: none;
+      text-align: center;
+      font-size: clamp(0.95rem, 3.8vw, 1.15rem);
+      font-weight: 800;
+      color: rgba(0, 255, 220, 0.92);
+      text-shadow:
+        0 0 14px rgba(0, 255, 200, 0.75),
+        0 0 28px rgba(255, 60, 80, 0.35);
+      letter-spacing: 0.02em;
+    }
+    .fw-arena--paused .fw-pause-hint {
+      display: flex;
     }
     #fw-matrix-canvas {
       position: absolute;
@@ -531,9 +557,8 @@
       box-shadow: 0 0 10px rgba(0, 255, 100, 0.6);
       transition: width 0.25s ease;
     }
-    #fw-overlay-pause.overlay { z-index: 125; }
     #fw-overlay-victory.overlay { z-index: 125; }
-    .fw-pause-modal, .fw-victory-modal { text-align: center; }
+    .fw-victory-modal { text-align: center; }
     .fw-gate-slot {
       position: relative;
       z-index: 3;
@@ -661,14 +686,22 @@
       flex-shrink: 0;
     }
     .fw-choice {
-      min-height: 40px;
-      font-size: clamp(0.95rem, 3.8vw, 1.15rem);
+      min-height: 48px;
+      padding: 10px 8px;
+      font-size: clamp(1rem, 4vw, 1.2rem);
       font-weight: 800;
       border: 1px solid rgba(255, 85, 0, 0.45);
       background: rgba(0, 0, 0, 0.8);
       color: #fff;
       border-radius: 4px;
       cursor: pointer;
+    }
+    #fw-choices.fw-choices--paused {
+      pointer-events: none;
+      opacity: 0.55;
+    }
+    #fw-choices.fw-choices--paused .fw-choice {
+      cursor: default;
     }
     .fw-choice--ok { border-color: #00ffaa; box-shadow: 0 0 12px rgba(0, 255, 170, 0.5); }
     .fw-choice--bad { border-color: #ff3355; box-shadow: 0 0 12px rgba(255, 51, 85, 0.5); }
@@ -1584,7 +1617,6 @@
     <div class="fw-top-bar">
       <div class="fw-top-actions">
         <button type="button" class="secondary fw-btn-icon" id="btn-fw-quit" title="יציאה">יציאה</button>
-        <button type="button" class="secondary fw-btn-icon" id="btn-fw-pause" title="השהיה" aria-pressed="false">⏸</button>
       </div>
       <div class="fw-cores" id="fw-shields" role="group" aria-label="ליבות מערכת">
         <span class="fw-core fw-core--on" aria-hidden="false"></span>
@@ -1601,7 +1633,8 @@
     </div>
     <div id="fw-screen-flash" class="fw-screen-flash" aria-hidden="true"></div>
     <p class="fw-subtitle">חסמו את טיפות הקוד לפני שפורצות את הרצפה — בחרו את תוצאת הכפל דרך השער</p>
-    <div class="fw-arena" id="fw-arena">
+    <div class="fw-arena" id="fw-arena" role="button" tabindex="0" title="לחיצה להשהיה / המשך" aria-label="אזור נפילת קוד — לחיצה להשהיה או המשך">
+      <p class="fw-pause-hint" id="fw-pause-hint" aria-hidden="true">|| המערכת מושהה — לחץ להמשך</p>
       <canvas id="fw-matrix-canvas" aria-hidden="true"></canvas>
       <div id="fw-drops" aria-hidden="true"></div>
       <div class="fw-gate-slot" id="fw-gate-slot">
@@ -1616,13 +1649,6 @@
       </div>
     </div>
     <div class="fw-choices-wrap" id="fw-choices" dir="ltr"></div>
-    <div id="fw-overlay-pause" class="overlay hidden" aria-hidden="true">
-      <div class="modal fw-pause-modal">
-        <h3>המשחק בהשהיה</h3>
-        <p style="color:var(--muted);margin:0 0 16px;">לחצו המשך כדי לחזור להגנת הפיירוול</p>
-        <button type="button" class="game-btn" id="fw-pause-resume">המשך ▶</button>
-      </div>
-    </div>
     <div id="fw-overlay-victory" class="overlay hidden" aria-hidden="true">
       <div class="modal fw-victory-modal">
         <h2 style="color:#00ff66;margin:0 0 12px;">הפיירוול עמד בביקורת!</h2>

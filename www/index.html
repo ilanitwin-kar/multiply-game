@@ -684,6 +684,8 @@
       min-height: 0;
       align-content: start;
       flex-shrink: 0;
+      position: relative;
+      z-index: 20;
     }
     .fw-choice {
       min-height: 48px;
@@ -708,7 +710,7 @@
     .fw-subtitle {
       display: none;
     }
-    .fw-screen-flash {
+    .fw-arena .fw-screen-flash {
       position: absolute;
       inset: 0;
       z-index: 40;
@@ -1631,9 +1633,9 @@
       <span class="pill"><span class="hud-label">שיא</span> <strong id="fw-high-score">0</strong></span>
       <span class="pill"><span class="hud-label">התקדמות</span> <strong id="fw-progress-pct">0%</strong></span>
     </div>
-    <div id="fw-screen-flash" class="fw-screen-flash" aria-hidden="true"></div>
     <p class="fw-subtitle">חסמו את טיפות הקוד לפני שפורצות את הרצפה — בחרו את תוצאת הכפל דרך השער</p>
     <div class="fw-arena" id="fw-arena" role="button" tabindex="0" title="לחיצה להשהיה / המשך" aria-label="אזור נפילת קוד — לחיצה להשהיה או המשך">
+      <div id="fw-screen-flash" class="fw-screen-flash" aria-hidden="true"></div>
       <p class="fw-pause-hint" id="fw-pause-hint" aria-hidden="true">|| המערכת מושהה — לחץ להמשך</p>
       <canvas id="fw-matrix-canvas" aria-hidden="true"></canvas>
       <div id="fw-drops" aria-hidden="true"></div>

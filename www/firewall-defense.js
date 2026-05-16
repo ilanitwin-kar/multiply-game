@@ -440,7 +440,10 @@
     if (!host) return;
     host.innerHTML = "";
     lockedChoice = false;
-    if (!drop || !gameActive || paused) return;
+    if (!drop || !gameActive || paused) {
+      setChoicesInteractive(false);
+      return;
+    }
 
     const opts = shuffle([drop.correct].concat(wrongAnswers(drop.correct)));
     opts.forEach((val) => {
@@ -448,10 +451,10 @@
       btn.type = "button";
       btn.className = "fw-choice math-ltr";
       btn.textContent = String(val);
-      btn.disabled = paused;
       btn.addEventListener("click", () => onChoice(drop, val, btn));
       host.appendChild(btn);
     });
+    setChoicesInteractive(true);
   }
 
   function onChoice(drop, val, btn) {
@@ -843,7 +846,6 @@
     hideGameOver();
     hideVictory();
     pauseLocked = false;
-    updatePauseUi();
 
     lastStartOptions = options || {};
     tableNum = typeof options.table === "number" ? options.table : 0;
@@ -854,6 +856,7 @@
     questionsDone = 0;
     gameActive = true;
     paused = false;
+    updatePauseUi();
     updateHud();
     initMatrixRain();
     initFloorBars();

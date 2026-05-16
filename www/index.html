@@ -98,10 +98,23 @@
       color: #ff8899;
     }
     #screen-play {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-rows: auto auto auto minmax(0, 1fr) auto;
       flex: 1;
       min-height: 0;
+      overflow: hidden;
+      max-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
+      gap: 0;
+    }
+    .play-main {
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding-bottom: 4px;
     }
     #screen-play.boss-mode .cyber-progress {
       border-color: rgba(255, 50, 80, 0.55);
@@ -304,7 +317,12 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
+      flex-shrink: 0;
+    }
+    #screen-play > .row,
+    .cyber-progress-wrap {
+      flex-shrink: 0;
     }
     .stat, .hud-stat {
       background: rgba(0, 8, 12, 0.92);
@@ -347,7 +365,7 @@
     }
     #sync-rate { color: #00ffcc; }
     .cyber-progress-wrap {
-      margin-bottom: 14px;
+      margin-bottom: 8px;
     }
     .cyber-progress-meta {
       display: flex;
@@ -416,25 +434,18 @@
       box-shadow: 0 0 18px rgba(0, 255, 255, 0.4), 0 0 14px rgba(0, 255, 204, 0.35);
       border-color: rgba(0, 255, 255, 0.55);
     }
-    .play-arena {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-    }
-    .play-upper {
-      flex: 0 0 auto;
-    }
     .play-lower {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 5.5rem;
-      padding: 8px 4px 4px;
-      border-top: 1px dashed rgba(0, 255, 255, 0.12);
-      margin-top: 8px;
+      flex: 0 0 auto;
+      display: block;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+      border-top: none;
       transition: background 0.25s, box-shadow 0.25s;
+    }
+    .play-lower:has(#sync-banner:not(:empty)) {
+      padding-top: 4px;
+      border-top: 1px dashed rgba(0, 255, 255, 0.12);
     }
     .play-lower--active {
       background: radial-gradient(ellipse at center, rgba(0, 255, 120, 0.12) 0%, transparent 70%);
@@ -444,8 +455,8 @@
       margin: 0;
       text-align: center;
       direction: rtl;
-      font-size: clamp(1.1rem, 5vw, 1.55rem);
-      font-weight: 800;
+      font-size: inherit;
+      font-weight: inherit;
       letter-spacing: 0.04em;
       color: transparent;
       min-height: 0;
@@ -464,9 +475,10 @@
     }
     .sync-banner-line1,
     .fb-line-top {
-      font-size: clamp(1.05rem, 4.8vw, 1.45rem);
+      font-size: clamp(0.95rem, 4.2vw, 1.2rem);
       line-height: 1.35;
       display: block;
+      margin-bottom: 4px;
     }
     .fb-headline-success {
       color: #00ff00;
@@ -482,9 +494,11 @@
     }
     .fb-chain-card {
       display: block;
-      margin: 0.35em auto 0;
-      padding: 8px 12px;
+      margin: 4px auto 0;
+      padding: 5px 6px;
+      width: 100%;
       max-width: 100%;
+      box-sizing: border-box;
       background: rgba(0, 0, 0, 0.6);
       border: 1px solid rgba(255, 255, 255, 0.28);
       border-radius: 4px;
@@ -492,19 +506,32 @@
       color: rgba(255, 255, 255, 0.9);
       text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
       font-weight: 700;
-      font-size: clamp(0.92rem, 4.1vw, 1.18rem);
-      line-height: 1.5;
+      font-size: clamp(0.72rem, 3vw, 0.9rem);
+      line-height: 1.4;
       text-align: center;
+      word-break: break-word;
+    }
+    .fb-chain-card--sm {
+      font-size: clamp(0.6rem, 2.5vw, 0.74rem);
+      line-height: 1.35;
+      padding: 4px 5px;
+    }
+    .fb-chain-card--xs {
+      font-size: clamp(0.5rem, 2.1vw, 0.62rem);
+      line-height: 1.3;
+      padding: 3px 4px;
     }
     .fb-chain-card bdi {
       color: rgba(255, 255, 255, 0.95);
+      white-space: normal;
+      word-break: break-word;
     }
     .fb-explain {
       display: block;
-      margin-top: 0.45em;
-      padding: 0 4px;
+      margin-top: 0.35em;
+      padding: 0 2px;
       color: #b388ff;
-      font-size: clamp(0.82rem, 3.7vw, 1.02rem);
+      font-size: clamp(0.72rem, 3.2vw, 0.9rem);
       font-weight: 600;
       line-height: 1.45;
       text-shadow: 0 0 12px rgba(179, 136, 255, 0.45);
@@ -529,14 +556,16 @@
       box-shadow: inset 0 0 40px rgba(255, 0, 51, 0.1);
     }
     .matrix-log {
-      flex-shrink: 0;
-      margin-top: auto;
-      padding: 8px 2px 2px;
-      border-top: 1px solid rgba(0, 255, 80, 0.12);
-      font-size: 0.62rem;
-      line-height: 1.45;
-      color: rgba(0, 200, 90, 0.45);
+      margin-top: 0;
+      padding: 8px 6px calc(6px + var(--safe-bottom));
+      border-top: 1px solid rgba(0, 255, 80, 0.22);
+      background: linear-gradient(180deg, rgba(0, 8, 6, 0.75) 0%, rgba(0, 0, 0, 0.95) 100%);
+      box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.55);
+      font-size: 0.65rem;
+      line-height: 1.5;
+      color: rgba(0, 200, 90, 0.55);
       letter-spacing: 0.02em;
+      z-index: 2;
     }
     .log-line {
       margin: 0;
@@ -553,7 +582,8 @@
     .question-wrap {
       width: 100%;
       text-align: center;
-      margin: 12px 0 10px;
+      margin: 4px 0 2px;
+      flex-shrink: 0;
     }
     .question {
       display: inline-block;
@@ -573,10 +603,12 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
+      margin-bottom: 0;
+      flex-shrink: 0;
     }
     .choices button {
-      font-size: 1.25rem;
-      min-height: 56px;
+      font-size: 1.15rem;
+      min-height: 48px;
     }
     .choices button.wrong {
       animation: shake 0.35s;
@@ -708,13 +740,11 @@
           <i id="progress-bar" class="cyber-progress-fill"></i>
         </div>
       </div>
-      <div class="play-arena">
-        <div class="play-upper">
-          <div class="question-wrap">
-            <div class="question math-ltr" id="q-text">0 × 0</div>
-          </div>
-          <div class="choices" id="choices" dir="ltr"></div>
+      <div class="play-main">
+        <div class="question-wrap">
+          <div class="question math-ltr" id="q-text">0 × 0</div>
         </div>
+        <div class="choices" id="choices" dir="ltr"></div>
         <div class="play-lower" id="play-lower">
           <p class="sync-banner" id="sync-banner" aria-live="polite"></p>
         </div>
@@ -1031,6 +1061,12 @@
     return "(כי חיברנו את " + addend + " " + times + ")";
   }
 
+  function chainCardClass(count) {
+    if (count > 10) return "fb-chain-card fb-chain-card--xs";
+    if (count > 5) return "fb-chain-card fb-chain-card--sm";
+    return "fb-chain-card";
+  }
+
   function pickSuccessHeadline() {
     return SUCCESS_HEADLINES[rnd(0, SUCCESS_HEADLINES.length - 1)];
   }
@@ -1114,7 +1150,7 @@
       '<span class="fb-line-top">' +
       topLine +
       "</span>" +
-      '<span class="fb-chain-card">' +
+      '<span class="' + chainCardClass(parts.count) + '">' +
       ltrBdi(chain) +
       " באמת שווה " +
       ltrBdi(String(answer)) +
@@ -1160,7 +1196,7 @@
       '<span class="fb-text-he">' +
       intro +
       "</span>" +
-      '<span class="fb-chain-card">' +
+      '<span class="' + chainCardClass(parts.count) + '">' +
       chain +
       "</span>" +
       '<span class="fb-explain fb-explain--cta">' +

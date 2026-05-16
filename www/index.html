@@ -263,12 +263,26 @@
       position: relative;
       flex: 1;
       display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      grid-template-rows: auto auto minmax(0, 1fr);
+      grid-template-areas:
+        "top"
+        "hud"
+        "play";
       min-height: 0;
       height: 100%;
       max-height: 100%;
       gap: 2px;
       overflow: hidden;
+    }
+    #screen-firewall > .fw-top-bar { grid-area: top; }
+    #screen-firewall > .fw-hud { grid-area: hud; }
+    #screen-firewall > .fw-playfield { grid-area: play; }
+    .fw-playfield {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      gap: 4px;
     }
     #screen-firewall.hidden { display: none !important; }
     .fw-top-bar {
@@ -398,7 +412,7 @@
     }
     .fw-arena {
       position: relative;
-      flex: 1;
+      flex: 1 1 auto;
       min-height: 0;
       display: flex;
       align-items: center;
@@ -683,9 +697,12 @@
       padding-bottom: 0;
       min-height: 0;
       align-content: start;
-      flex-shrink: 0;
+      flex: 0 0 auto;
       position: relative;
-      z-index: 20;
+      z-index: 50;
+      pointer-events: auto;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(255, 140, 0, 0.25);
     }
     .fw-choice {
       min-height: 48px;
@@ -697,13 +714,16 @@
       color: #fff;
       border-radius: 4px;
       cursor: pointer;
+      pointer-events: auto;
+      touch-action: manipulation;
+      position: relative;
+      z-index: 1;
     }
     #fw-choices.fw-choices--paused {
-      pointer-events: none;
       opacity: 0.55;
     }
     #fw-choices.fw-choices--paused .fw-choice {
-      cursor: default;
+      cursor: not-allowed;
     }
     .fw-choice--ok { border-color: #00ffaa; box-shadow: 0 0 12px rgba(0, 255, 170, 0.5); }
     .fw-choice--bad { border-color: #ff3355; box-shadow: 0 0 12px rgba(255, 51, 85, 0.5); }
@@ -1634,6 +1654,7 @@
       <span class="pill"><span class="hud-label">התקדמות</span> <strong id="fw-progress-pct">0%</strong></span>
     </div>
     <p class="fw-subtitle">חסמו את טיפות הקוד לפני שפורצות את הרצפה — בחרו את תוצאת הכפל דרך השער</p>
+    <div class="fw-playfield">
     <div class="fw-arena" id="fw-arena" role="button" tabindex="0" title="לחיצה להשהיה / המשך" aria-label="אזור נפילת קוד — לחיצה להשהיה או המשך">
       <div id="fw-screen-flash" class="fw-screen-flash" aria-hidden="true"></div>
       <p class="fw-pause-hint" id="fw-pause-hint" aria-hidden="true">|| המערכת מושהה — לחץ להמשך</p>
@@ -1651,6 +1672,7 @@
       </div>
     </div>
     <div class="fw-choices-wrap" id="fw-choices" dir="ltr"></div>
+    </div>
     <div id="fw-overlay-victory" class="overlay hidden" aria-hidden="true">
       <div class="modal fw-victory-modal">
         <h2 style="color:#00ff66;margin:0 0 12px;">הפיירוול עמד בביקורת!</h2>

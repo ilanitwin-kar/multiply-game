@@ -439,6 +439,7 @@
     const host = $("fw-choices");
     if (!host) return;
     host.innerHTML = "";
+    host.classList.remove("fw-choices--paused");
     lockedChoice = false;
     if (!drop || !gameActive || paused) {
       setChoicesInteractive(false);
@@ -451,7 +452,7 @@
       btn.type = "button";
       btn.className = "fw-choice math-ltr";
       btn.textContent = String(val);
-      btn.addEventListener("click", () => onChoice(drop, val, btn));
+      btn.dataset.value = String(val);
       host.appendChild(btn);
     });
     setChoicesInteractive(true);
@@ -715,7 +716,8 @@
   function setChoicesInteractive(on) {
     const host = $("fw-choices");
     if (!host) return;
-    host.classList.toggle("fw-choices--paused", !on);
+    host.classList.remove("fw-choices--paused");
+    if (!on) host.classList.add("fw-choices--paused");
     host.querySelectorAll(".fw-choice").forEach((btn) => {
       btn.disabled = !on;
     });
@@ -841,6 +843,9 @@
   }
 
   function start(options) {
+    if (typeof global.dismissMatrixExitOverlay === "function") {
+      global.dismissMatrixExitOverlay();
+    }
     stop();
     clearArena();
     hideGameOver();
@@ -901,9 +906,36 @@
     if (quit) {
       quit.addEventListener("click", requestExit);
     }
+    const choicesHost = $("fw-choices");
+    if (choicesHost && !bindUiOnce.choicesBound) {
+      bindUiOnce.choicesBound = true;
+      const handleChoiceActivate = (e) => {
+        const btn = e.target.closest(".fw-choice");
+        if (!btn || !choicesHost.contains(btn)) return;
+        e.stopPropagation();
+        if (!gameActive || paused || pauseLocked || lockedChoice) return;
+        const drop = drops.find((d) => d.id === activeDropId && !d.resolved);
+        if (!drop) return;
+        const val = Number(btn.dataset.value ?? btn.textContent);
+        if (Number.isNaN(val)) return;
+        onChoice(drop, val, btn);
+      };
+      choicesHost.addEventListener("click", handleChoiceActivate);
+      choicesHost.addEventListener(
+        "touchend",
+        (e) => {
+          if (e.target.closest(".fw-choice")) {
+            e.stopPropagation();
+            handleChoiceActivate(e);
+          }
+        },
+        { passive: true }
+      );
+    }
     if (arena) {
-      arena.addEventListener("click", () => {
+      arena.addEventListener("click", (e) => {
         if (!gameActive || pauseLocked) return;
+        if (e.target.closest("#fw-choices, .fw-choice")) return;
         togglePause();
       });
     }

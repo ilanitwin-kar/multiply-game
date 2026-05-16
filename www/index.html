@@ -7,8 +7,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>הרפתקאת הכפל</title>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <meta name="apple-mobile-web-app-title" content="הכפל" />
   <style>
     :root {
       --bg: #12121f;
@@ -196,6 +198,14 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     }
     .modal h3 { margin-top: 0; }
+    .intro-text {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.65;
+      text-align: right;
+      margin: 0 0 1rem;
+    }
+    .intro-text strong { color: var(--accent2); }
     .hidden { display: none !important; }
     footer {
       margin-top: auto;
@@ -219,6 +229,7 @@
       </div>
       <div class="map" id="map-nodes"></div>
       <footer>
+        <button type="button" class="hidden" id="btn-install-app">התקן אפליקציה</button>
         <button type="button" class="secondary" id="btn-install-help">איך מתקינים על הנייד</button>
       </footer>
     </div>
@@ -257,12 +268,24 @@
   <div id="overlay-help" class="overlay hidden" aria-hidden="true">
     <div class="modal" style="text-align:right;">
       <h3>התקנה כמו אפליקציה</h3>
-      <p style="color:var(--muted);font-size:0.92rem;line-height:1.5;">
-        <b>אנדרואיד (כרום):</b> תפריט ⋮ → «התקן אפליקציה» או «הוסף למסך הבית».<br /><br />
-        <b>אייפון (ספארי):</b> שיתוף ↑ → «הוסף למסך הבית».<br /><br />
-        אחרי פריסה ב-Vercel (או שרת עם HTTPS): פתחו את הקישור בנייד והוסיפו למסך הבית. מתוך `file://` או HTTP מקומי בלי מנהרה — התקנה לפעמים לא תופיע.
-      </p>
+      <p id="help-install-body" style="color:var(--muted);font-size:0.92rem;line-height:1.5;"></p>
       <button type="button" id="help-close" style="width:100%;margin-top:12px;">סגור</button>
+    </div>
+  </div>
+
+  <div id="overlay-zero-intro" class="overlay hidden" aria-hidden="true">
+    <div class="modal" style="text-align:right; max-width: 24rem;">
+      <h3>טבלת 0</h3>
+      <p class="intro-text">
+        זכרו: כל מה שמכפילים ב־<span class="math-ltr">0</span> נותן תוצאה של <strong>אפס</strong>, כי הכפלנו בכלום.
+      </p>
+      <p class="intro-text">
+        <span class="math-ltr">0</span> אומר כמה פעמים של כלום הכפלנו — התוצאה תמיד תהיה כלום — <strong>0</strong>.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+        <button type="button" id="zero-intro-start">בואו נתחיל</button>
+        <button type="button" class="secondary" id="zero-intro-back">חזרה למפה</button>
+      </div>
     </div>
   </div>
 
@@ -484,7 +507,17 @@
     }, 500);
   }
 
-  function startLevel(levelId) {
+  function showZeroIntro() {
+    el("overlay-zero-intro").classList.remove("hidden");
+    el("overlay-zero-intro").setAttribute("aria-hidden", "false");
+  }
+
+  function hideZeroIntro() {
+    el("overlay-zero-intro").classList.add("hidden");
+    el("overlay-zero-intro").setAttribute("aria-hidden", "true");
+  }
+
+  function prepareLevel(levelId) {
     state.levelId = levelId;
     state.q = 0;
     state.correct = 0;
@@ -504,9 +537,22 @@
     el("score").textContent = "0";
     el("timer").textContent = "0";
     el("progress-bar").style.width = "0%";
+  }
+
+  function beginLevelPlay() {
     showScreen("play");
     startTimer();
     nextQuestion();
+  }
+
+  function startLevel(levelId) {
+    prepareLevel(levelId);
+    const L = LEVELS[levelId];
+    if (L.type === "table" && L.table === 0) {
+      showZeroIntro();
+      return;
+    }
+    beginLevelPlay();
   }
 
   function nextQuestion() {
@@ -666,6 +712,43 @@
     showScreen("map");
     renderMap();
   });
+  const isIOS =
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  let deferredInstallPrompt = null;
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if (!isStandalone) {
+      el("btn-install-app").classList.remove("hidden");
+    }
+  });
+
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    el("btn-install-app").classList.add("hidden");
+  });
+
+  el("btn-install-app").addEventListener("click", async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    el("btn-install-app").classList.add("hidden");
+  });
+
+  el("help-install-body").innerHTML = isIOS
+    ? "<b>באייפון אין כפתור «התקן אפליקציה».</b> זה תקין — אפל «הוסף למסך הבית» <b>הוא</b> ההתקנה (ספארי בלבד: שיתוף ↑ → הוסף למסך הבית). אחרי זה האייקון נפתח במסך מלא כמו אפליקציה."
+    : "<b>אנדרואיד (כרום):</b> אם מופיע למעלה כפתור «התקן אפליקציה» — לחצו עליו. אחרת: תפריט ⋮ → «התקן אפליקציה» / «הוסף למסך הבית».<br /><br />חייבים לפתוח את הקישור מ-Vercel (HTTPS), לא מכתובת מחשב מקומית (http://192.168…).";
+  if (isIOS && !isStandalone) {
+    el("btn-install-help").textContent = "איך מוסיפים למסך הבית (אייפון)";
+  }
+
   el("btn-install-help").addEventListener("click", () => {
     el("overlay-help").classList.remove("hidden");
     el("overlay-help").setAttribute("aria-hidden", "false");
@@ -675,8 +758,17 @@
     el("overlay-help").setAttribute("aria-hidden", "true");
   });
 
+  el("zero-intro-start").addEventListener("click", () => {
+    hideZeroIntro();
+    beginLevelPlay();
+  });
+  el("zero-intro-back").addEventListener("click", () => {
+    hideZeroIntro();
+    showScreen("map");
+  });
+
   if ("serviceWorker" in navigator && window.isSecureContext) {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
   }
 
   renderMap();

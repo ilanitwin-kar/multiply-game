@@ -105,20 +105,23 @@
       color: #ff8899;
     }
     #screen-play {
-      display: grid;
-      grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
+      display: flex;
+      flex-direction: column;
       flex: 1;
       min-height: 0;
       overflow: hidden;
       max-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
       gap: 0;
     }
-    #screen-play:has(#sync-banner:not(:empty)) {
-      grid-template-rows: auto auto auto minmax(0, 0.55fr) minmax(12rem, 1.35fr) auto;
+    #screen-play > .row,
+    #screen-play > .play-head,
+    #screen-play > .cyber-progress-wrap,
+    #screen-play > .play-main {
+      flex-shrink: 0;
     }
     .play-main {
       flex-shrink: 0;
-      overflow: hidden;
+      overflow: visible;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -206,13 +209,18 @@
       0%, 100% { box-shadow: 0 0 14px rgba(255, 85, 0, 0.65), 0 0 28px rgba(255, 85, 0, 0.35); }
       50% { box-shadow: 0 0 26px rgba(255, 85, 0, 1), 0 0 52px rgba(255, 140, 0, 0.55); }
     }
+    #app:has(#screen-firewall:not(.hidden)) {
+      overflow: hidden;
+      max-height: 100dvh;
+    }
     #screen-firewall {
       position: relative;
       flex: 1;
       display: flex;
       flex-direction: column;
       min-height: 0;
-      gap: 4px;
+      max-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
+      gap: 2px;
       overflow: hidden;
     }
     #screen-firewall.hidden { display: none !important; }
@@ -301,28 +309,46 @@
     }
     .fw-top-chip strong { color: #00ffaa; }
     .fw-hud {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: stretch;
       gap: 4px;
       width: 100%;
       flex-shrink: 0;
+      min-height: 0;
     }
     .fw-hud .pill {
-      padding: 5px 6px;
-      font-size: var(--read-sm);
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 4px 5px;
+      font-size: 0.72rem;
       min-height: 0;
       justify-content: center;
       text-align: center;
     }
     .fw-hud .hud-label {
       display: block;
-      font-size: 0.8rem;
-      line-height: 1.15;
+      font-size: 0.62rem;
+      line-height: 1.1;
     }
     .fw-hud .pill strong {
-      font-size: var(--read-md);
+      font-size: 0.88rem;
     }
-    .fw-speed-pill { display: none; }
+    .fw-pill-table {
+      flex: 0 0 auto;
+      width: auto;
+      max-width: 2.85rem;
+      padding: 2px 4px;
+    }
+    .fw-pill-table .hud-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.02em;
+    }
+    .fw-pill-table strong {
+      font-size: 0.82rem;
+      display: block;
+    }
     .fw-arena {
       position: relative;
       flex: 1;
@@ -478,7 +504,7 @@
     .fw-gate {
       position: relative;
       text-align: center;
-      padding: 12px 20px;
+      padding: 10px 16px;
       border: 2px solid rgba(255, 85, 0, 0.7);
       border-radius: 8px;
       background: rgba(0, 0, 0, 0.65);
@@ -581,14 +607,14 @@
     .fw-choices-wrap {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
-      padding-bottom: 2px;
-      min-height: 96px;
+      gap: 5px;
+      padding-bottom: 0;
+      min-height: 0;
       align-content: start;
       flex-shrink: 0;
     }
     .fw-choice {
-      min-height: 50px;
+      min-height: 44px;
       font-size: clamp(1.2rem, 4.5vw, 1.45rem);
       font-weight: 800;
       border: 1px solid rgba(255, 85, 0, 0.45);
@@ -600,18 +626,7 @@
     .fw-choice--ok { border-color: #00ffaa; box-shadow: 0 0 12px rgba(0, 255, 170, 0.5); }
     .fw-choice--bad { border-color: #ff3355; box-shadow: 0 0 12px rgba(255, 51, 85, 0.5); }
     .fw-subtitle {
-      font-size: var(--read-sm);
-      color: var(--muted);
-      text-align: center;
-      margin: 0;
-      line-height: 1.4;
-      flex-shrink: 0;
-      word-break: break-word;
-    }
-    @media (max-height: 720px), (max-width: 400px) {
-      .fw-subtitle { display: none; }
-      .fw-choices-wrap { min-height: 88px; }
-      .fw-choice { min-height: 46px; font-size: var(--read-md); }
+      display: none;
     }
     .fw-screen-flash {
       position: absolute;
@@ -925,22 +940,25 @@
       border-color: rgba(0, 255, 255, 0.55);
     }
     .play-lower {
+      flex: 0 0 auto;
       min-height: 0;
+      max-height: 0;
       display: flex;
       align-items: stretch;
       justify-content: center;
       width: 100%;
-      padding: 0 0 4px;
+      padding: 0;
       margin: 0;
-      overflow-x: hidden;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      overflow: hidden;
       border-top: none;
-      transition: background 0.25s, box-shadow 0.25s;
+      transition: background 0.25s, box-shadow 0.25s, max-height 0.2s ease;
     }
-    .play-lower:has(#sync-banner:not(:empty)) {
-      margin-top: 6px;
-      min-height: 12rem;
+    .play-lower.play-lower--show {
+      flex: 0 0 auto;
+      max-height: none;
+      margin-top: 4px;
+      padding: 0 0 2px;
+      overflow: visible;
     }
     .play-lower--active {
       background: radial-gradient(ellipse at center, rgba(0, 255, 120, 0.1) 0%, transparent 72%);
@@ -953,9 +971,12 @@
       overflow: visible;
       text-align: center;
       direction: rtl;
-      color: transparent;
+      color: var(--muted);
       min-height: 0;
       line-height: 1.35;
+    }
+    .sync-banner:empty {
+      display: none;
     }
     .sync-banner bdi {
       direction: ltr;
@@ -972,6 +993,40 @@
       max-width: 100%;
       padding: 4px 4px 10px;
       box-sizing: border-box;
+    }
+    .play-lower .fb-panel {
+      gap: 3px;
+      padding: 2px 4px 4px;
+    }
+    .play-lower .fb-status {
+      font-size: clamp(15px, 4.6vw, 20px);
+      line-height: 1.15;
+    }
+    .play-lower .fb-desc {
+      font-size: clamp(12px, 3.4vw, 15px);
+      line-height: 1.25;
+    }
+    .play-lower .fb-hud {
+      padding: 6px 8px;
+    }
+    .play-lower .fb-hud-chain {
+      font-size: clamp(13px, 3.8vw, 17px);
+      line-height: 1.25;
+      gap: 2px;
+    }
+    .play-lower .fb-summary {
+      font-size: clamp(12px, 3.4vw, 16px);
+      line-height: 1.25;
+    }
+    .play-lower .fb-panel--trick .fb-status {
+      font-size: clamp(14px, 4.2vw, 18px);
+    }
+    .play-lower .fb-panel--trick .fb-desc,
+    .play-lower .fb-panel--trick .fb-summary {
+      font-size: clamp(11px, 3.1vw, 14px);
+    }
+    .play-lower .fb-panel--trick .fb-hud-chain {
+      font-size: clamp(12px, 3.4vw, 15px);
     }
     .fb-status {
       display: block;
@@ -1126,8 +1181,8 @@
     }
     .matrix-log {
       flex-shrink: 0;
+      margin-top: auto;
       min-height: 3.8rem;
-      margin-top: 0;
       padding: 8px 6px calc(6px + var(--safe-bottom));
       border-top: 1px solid rgba(0, 255, 80, 0.22);
       background: linear-gradient(180deg, rgba(0, 8, 6, 0.92) 0%, rgba(0, 0, 0, 0.98) 100%);
@@ -1262,13 +1317,24 @@
         0 0 28px rgba(255, 85, 0, 0.35),
         inset 0 0 24px rgba(0, 255, 120, 0.04);
       max-width: 22rem;
+      padding: 16px 12px 18px;
+      overflow: hidden;
+      box-sizing: border-box;
     }
     .matrix-exit-tag {
-      margin: 0 0 8px;
-      font-size: var(--read-sm);
+      margin: 0 0 10px;
+      padding: 0 2px;
+      font-size: clamp(0.62rem, 2.8vw, 0.76rem);
+      line-height: 1.35;
       color: rgba(0, 255, 140, 0.9);
-      letter-spacing: 0.1em;
+      letter-spacing: 0.03em;
       text-shadow: 0 0 10px rgba(0, 255, 120, 0.45);
+      direction: ltr;
+      unicode-bidi: isolate;
+      display: block;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
     .matrix-exit-title {
       margin: 0 0 12px;
@@ -1378,21 +1444,10 @@
       <span class="fw-top-chip"><span id="fw-q-cur">1</span>/<span id="fw-q-total">20</span></span>
     </div>
     <div class="fw-hud">
-      <span class="pill"><span class="hud-label">מעבד</span> <strong id="fw-table-label">0</strong></span>
-      <span class="pill"><span class="hud-label">נותרו</span> <strong id="fw-q-left">20</strong></span>
+      <span class="pill fw-pill-table"><span class="hud-label">מעבד</span> <strong id="fw-table-label">0</strong></span>
       <span class="pill"><span class="hud-label">ניקוד</span> <strong id="fw-score">0</strong></span>
       <span class="pill"><span class="hud-label">שיא</span> <strong id="fw-high-score">0</strong></span>
-      <span class="pill fw-speed-pill" title="קצב"><span class="hud-label">קצב</span> <strong id="fw-speed-tier">×1</strong></span>
       <span class="pill"><span class="hud-label">התקדמות</span> <strong id="fw-progress-pct">0%</strong></span>
-    </div>
-    <div class="fw-progress-wrap">
-      <div class="fw-progress-meta">
-        <span>התקדמות סבב</span>
-        <strong id="fw-progress-label">0%</strong>
-      </div>
-      <div class="fw-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="fw-progress" aria-valuenow="0">
-        <i class="fw-progress-fill" id="fw-progress-fill"></i>
-      </div>
     </div>
     <div id="fw-screen-flash" class="fw-screen-flash" aria-hidden="true"></div>
     <p class="fw-subtitle">חסמו את טיפות הקוד לפני שפורצות את הרצפה — בחרו את תוצאת הכפל דרך השער</p>
@@ -2079,19 +2134,24 @@
   function setSyncBanner(text, mood) {
     const b = el("sync-banner");
     const lower = el("play-lower");
+    const content = text || "";
     if (
-      text.indexOf("<bdi") !== -1 ||
-      text.indexOf("fb-panel") !== -1 ||
-      text.indexOf("<span") !== -1
+      content.indexOf("<bdi") !== -1 ||
+      content.indexOf("fb-panel") !== -1 ||
+      content.indexOf("<span") !== -1
     ) {
-      b.innerHTML = text;
+      b.innerHTML = content;
     } else {
-      b.textContent = text;
+      b.textContent = content;
     }
     b.className = "sync-banner" + (mood ? " sync-banner--" + mood : "");
+    const hasContent = content.trim().length > 0;
+    if (lower) {
+      lower.classList.toggle("play-lower--show", hasContent);
+      lower.classList.toggle("play-lower--active", mood === "success");
+      lower.classList.toggle("play-lower--warn", mood === "warn");
+    }
     state.lastBannerMood = mood || "";
-    lower.classList.toggle("play-lower--active", mood === "success");
-    lower.classList.toggle("play-lower--warn", mood === "warn");
   }
 
   function pushMatrixLog(line) {
@@ -2483,6 +2543,7 @@
   }
 
   function nextQuestion() {
+    setSyncBanner("", "");
     state.q += 1;
     if (state.q > QUESTIONS_PER_LEVEL) {
       endLevel();
@@ -2554,7 +2615,9 @@
         pushMatrixLog("[SYSTEM]: Processor " + (getLevelTableNum() ?? "BOSS") + " sync OK.");
       }
       pushMatrixLog("[LOG]: Answer matrix verified in " + answerSec + "s.");
-      nextQuestion();
+      const successDelay =
+        getSyncPercent() >= 100 ? FEEDBACK_DELAY.successBig : FEEDBACK_DELAY.success;
+      setTimeout(() => nextQuestion(), successDelay);
     } else {
       btn.classList.add("wrong");
       btn.disabled = true;

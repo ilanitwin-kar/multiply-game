@@ -1,8 +1,9 @@
-const CACHE = "multiply-game-v24";
+const CACHE = "multiply-game-v37";
 
 const ASSETS = [
   "/",
   "/index.html",
+  "/firewall-defense.js",
   "/manifest.webmanifest",
   "/icon.svg",
   "/icon-192.png",
@@ -29,6 +30,26 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
+  const url = new URL(request.url);
+  const isNetworkFirst =
+    url.pathname === "/" ||
+    url.pathname.endsWith("/index.html") ||
+    url.pathname.endsWith("/sw.js") ||
+    url.pathname.endsWith("/firewall-defense.js");
+  if (isNetworkFirst) {
+    event.respondWith(
+      fetch(request)
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((cache) => cache.put(request, copy));
+          }
+          return res;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
   event.respondWith(
     caches.match(request).then((cached) => cached || fetch(request))
   );

@@ -99,7 +99,7 @@
     }
     #screen-play {
       display: grid;
-      grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+      grid-template-rows: auto auto auto auto minmax(0, 1fr) auto;
       flex: 1;
       min-height: 0;
       overflow: hidden;
@@ -107,14 +107,11 @@
       gap: 0;
     }
     .play-main {
-      min-height: 0;
-      overflow-x: hidden;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      flex-shrink: 0;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      padding-bottom: 4px;
     }
     #screen-play.boss-mode .cyber-progress {
       border-color: rgba(255, 50, 80, 0.55);
@@ -177,6 +174,451 @@
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
     }
     button.danger { background: linear-gradient(135deg, #aa0033, #550000); border-color: #ff3355; }
+    .btn-firewall-defense {
+      background: linear-gradient(135deg, #ff5500, #cc2200);
+      border-color: #ff8833;
+      color: #fff;
+      text-shadow: 0 0 12px rgba(255, 200, 120, 0.9);
+      box-shadow:
+        0 0 18px rgba(255, 85, 0, 0.75),
+        0 0 36px rgba(255, 85, 0, 0.45),
+        inset 0 0 12px rgba(255, 200, 100, 0.25);
+      animation: fw-btn-glow 1.4s ease-in-out infinite;
+    }
+    .btn-firewall-defense:hover {
+      filter: brightness(1.12);
+      box-shadow:
+        0 0 24px rgba(255, 85, 0, 0.95),
+        0 0 48px rgba(255, 120, 0, 0.55);
+    }
+    @keyframes fw-btn-glow {
+      0%, 100% { box-shadow: 0 0 14px rgba(255, 85, 0, 0.65), 0 0 28px rgba(255, 85, 0, 0.35); }
+      50% { box-shadow: 0 0 26px rgba(255, 85, 0, 1), 0 0 52px rgba(255, 140, 0, 0.55); }
+    }
+    #screen-firewall {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      gap: 8px;
+    }
+    #screen-firewall.hidden { display: none !important; }
+    .fw-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      width: 100%;
+    }
+    .fw-hud {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .fw-arena {
+      position: relative;
+      flex: 1;
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 85, 0, 0.35);
+      border-radius: 6px;
+      background: linear-gradient(180deg, rgba(0, 8, 20, 0.95) 0%, rgba(20, 0, 0, 0.85) 100%);
+      overflow: hidden;
+      box-shadow: inset 0 0 40px rgba(255, 85, 0, 0.08);
+    }
+    #fw-matrix-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.85;
+    }
+    #fw-drops {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .fw-drop-col {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      will-change: top, transform;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .fw-matrix-stream {
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: center;
+      justify-content: flex-start;
+      width: 1.15rem;
+      min-height: 0;
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(to top, #000 0%, #000 50%, transparent 100%);
+      mask-image: linear-gradient(to top, #000 0%, #000 50%, transparent 100%);
+    }
+    .fw-mchar {
+      display: block;
+      font: 600 11px/1.08 "Consolas", "Courier New", monospace;
+      color: rgba(0, 220, 255, 0.18);
+      text-shadow: 0 0 5px rgba(0, 255, 255, 0.15);
+      text-align: center;
+    }
+    .fw-mchar--n1 { color: rgba(0, 235, 255, 0.38); }
+    .fw-mchar--n2 { color: rgba(0, 245, 255, 0.52); text-shadow: 0 0 8px rgba(0, 255, 255, 0.35); }
+    .fw-mchar--n3 { color: rgba(0, 255, 255, 0.72); text-shadow: 0 0 10px rgba(0, 255, 255, 0.55); }
+    .fw-mchar--glitch {
+      color: rgba(210, 90, 255, 0.85) !important;
+      text-shadow: 0 0 10px rgba(200, 70, 255, 0.8), 0 0 4px rgba(255, 0, 200, 0.4);
+    }
+    .fw-drop-head-wrap {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .fw-drop-beam {
+      display: block;
+      width: 3px;
+      height: clamp(28px, 8vh, 48px);
+      margin-bottom: -2px;
+      background: linear-gradient(to top, rgba(0, 255, 255, 1) 0%, rgba(0, 255, 255, 0.15) 70%, transparent 100%);
+      box-shadow: 0 0 12px #00ffff, 0 0 24px rgba(0, 255, 255, 0.45);
+      filter: blur(0.4px);
+    }
+    .fw-drop-head {
+      font-size: clamp(2rem, 9vw, 3.25rem);
+      font-weight: 800;
+      color: #00ffff;
+      line-height: 1;
+      text-shadow:
+        0 0 12px #00ffff,
+        0 0 28px rgba(0, 255, 255, 0.85),
+        0 0 48px rgba(0, 200, 255, 0.45);
+    }
+    .fw-drop-col--active .fw-drop-head {
+      color: #fff8e0;
+      text-shadow:
+        0 0 14px #ffaa00,
+        0 0 28px rgba(255, 140, 0, 0.8),
+        0 0 44px rgba(255, 85, 0, 0.45);
+    }
+    .fw-drop-col--active .fw-drop-beam {
+      background: linear-gradient(to top, rgba(255, 180, 0, 1), rgba(255, 120, 0, 0.2), transparent);
+      box-shadow: 0 0 14px #ff8800, 0 0 22px rgba(255, 120, 0, 0.5);
+    }
+    .fw-drop-col--at-gate .fw-drop-head { filter: brightness(1.25); }
+    .fw-drop-col--exit {
+      opacity: 0;
+      transition: opacity 0.12s ease-out;
+    }
+    .fw-drop-col--fail .fw-drop-head { color: #ff3355; text-shadow: 0 0 12px #ff0033; }
+    .fw-drop-col--fail .fw-drop-beam {
+      background: linear-gradient(to top, rgba(255, 50, 80, 1), transparent);
+      box-shadow: 0 0 12px #ff0033;
+    }
+    .fw-progress-wrap {
+      width: 100%;
+      padding: 0 2px 4px;
+    }
+    .fw-progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .fw-progress-meta strong { color: var(--cyan); }
+    .fw-progress-bar {
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(0, 255, 255, 0.25);
+      overflow: hidden;
+    }
+    .fw-progress-fill {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00aa44, #00ff66);
+      box-shadow: 0 0 10px rgba(0, 255, 100, 0.6);
+      transition: width 0.25s ease;
+    }
+    #fw-overlay-pause.overlay { z-index: 125; }
+    #fw-overlay-victory.overlay { z-index: 125; }
+    .fw-pause-modal, .fw-victory-modal { text-align: center; }
+    .fw-toolbar-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .fw-gate-slot {
+      position: relative;
+      z-index: 3;
+      flex-shrink: 0;
+    }
+    .fw-gate-slot--fx::after {
+      content: "";
+      position: absolute;
+      inset: -22px;
+      border-radius: 50%;
+      border: 3px solid rgba(0, 255, 200, 0.85);
+      pointer-events: none;
+      animation: fw-gate-ring 0.42s ease-out forwards;
+    }
+    .fw-gate {
+      position: relative;
+      text-align: center;
+      padding: 16px 28px;
+      border: 2px solid rgba(255, 85, 0, 0.7);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.65);
+      box-shadow:
+        0 0 20px rgba(255, 85, 0, 0.5),
+        inset 0 0 24px rgba(255, 85, 0, 0.15);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .fw-gate-label {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    #fw-gate-expr {
+      font-size: clamp(1.8rem, 7vw, 2.6rem);
+      font-weight: 800;
+      color: #ff5500;
+      text-shadow: 0 0 16px rgba(255, 85, 0, 0.9);
+    }
+    .fw-gate--block {
+      border-color: #00ffcc;
+      box-shadow:
+        0 0 32px rgba(0, 255, 200, 0.9),
+        0 0 64px rgba(0, 255, 150, 0.45),
+        inset 0 0 36px rgba(0, 255, 200, 0.35);
+    }
+    @keyframes fw-gate-ring {
+      0% { opacity: 0.9; transform: scale(0.65); box-shadow: 0 0 20px #00ffcc; }
+      100% { opacity: 0; transform: scale(1.7); box-shadow: 0 0 40px transparent; }
+    }
+    .fw-gate--block #fw-gate-expr {
+      animation: fw-gate-expr-flash 0.35s ease-out;
+    }
+    @keyframes fw-gate-expr-flash {
+      0%, 100% { color: #ff5500; text-shadow: 0 0 16px rgba(255, 85, 0, 0.9); }
+      45% { color: #00ffcc; text-shadow: 0 0 22px #00ffcc; }
+    }
+    .fw-new-record {
+      display: inline-block;
+      margin: 0 0 10px;
+      padding: 4px 12px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #00ff00;
+      border: 1px solid rgba(0, 255, 0, 0.6);
+      border-radius: 4px;
+      box-shadow: 0 0 14px rgba(0, 255, 0, 0.4);
+      animation: fw-shield-pulse 1.2s ease-in-out infinite;
+    }
+    .fw-new-record.hidden { display: none; }
+    .fw-gate--breach {
+      border-color: #ff2244;
+      animation: fw-breach-shake 0.45s ease;
+      box-shadow: 0 0 32px rgba(255, 34, 68, 0.8);
+    }
+    @keyframes fw-breach-shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    .fw-floor {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 36px;
+      z-index: 4;
+      pointer-events: none;
+    }
+    .fw-floor-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 3px;
+      background: #00ffff;
+      box-shadow: 0 0 14px #00ffff, 0 0 28px rgba(0, 255, 255, 0.55);
+    }
+    .fw-floor-bars {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: 3px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 6px;
+      gap: 3px;
+    }
+    .fw-floor-bar {
+      flex: 1;
+      max-width: 10px;
+      min-width: 3px;
+      border-radius: 2px 2px 0 0;
+      background: linear-gradient(to top, rgba(0, 255, 255, 0.95), rgba(0, 255, 255, 0.08));
+      box-shadow: 0 0 8px rgba(0, 255, 255, 0.45);
+    }
+    .fw-choices-wrap {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      padding-bottom: 4px;
+      min-height: 116px;
+      align-content: start;
+    }
+    .fw-choice {
+      min-height: 52px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      border: 1px solid rgba(255, 85, 0, 0.45);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .fw-choice--ok { border-color: #00ffaa; box-shadow: 0 0 12px rgba(0, 255, 170, 0.5); }
+    .fw-choice--bad { border-color: #ff3355; box-shadow: 0 0 12px rgba(255, 51, 85, 0.5); }
+    .fw-subtitle {
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-align: center;
+      margin: 0;
+    }
+    .fw-shields-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      padding: 4px 0 2px;
+      min-height: 52px;
+    }
+    .fw-shield {
+      position: relative;
+      width: 46px;
+      height: 50px;
+      flex-shrink: 0;
+      clip-path: polygon(50% 0%, 92% 22%, 92% 68%, 50% 100%, 8% 68%, 8% 22%);
+      background: linear-gradient(165deg, rgba(0, 255, 0, 0.45) 0%, rgba(0, 120, 40, 0.2) 100%);
+      border: none;
+      box-shadow:
+        0 0 14px #00ff00,
+        0 0 28px rgba(0, 255, 0, 0.65),
+        inset 0 0 12px rgba(0, 255, 120, 0.35);
+      transition: box-shadow 0.25s, background 0.25s, filter 0.25s;
+    }
+    .fw-shield::before {
+      content: "";
+      position: absolute;
+      inset: 6px 10px 10px;
+      clip-path: polygon(50% 8%, 82% 28%, 82% 62%, 50% 88%, 18% 62%, 18% 28%);
+      background: rgba(0, 255, 0, 0.12);
+      border: 1px solid rgba(0, 255, 0, 0.55);
+    }
+    .fw-shield--on {
+      animation: fw-shield-pulse 2s ease-in-out infinite;
+    }
+    @keyframes fw-shield-pulse {
+      0%, 100% { box-shadow: 0 0 12px #00ff00, 0 0 24px rgba(0, 255, 0, 0.5); }
+      50% { box-shadow: 0 0 20px #00ff00, 0 0 40px rgba(0, 255, 0, 0.85); }
+    }
+    .fw-shield--lost {
+      background: linear-gradient(165deg, #2a2a2a 0%, #1a1a1a 100%);
+      box-shadow: none;
+      filter: grayscale(0.9);
+      animation: none;
+    }
+    .fw-shield--lost::before {
+      border-color: rgba(80, 80, 80, 0.5);
+      background: transparent;
+    }
+    .fw-shield--lost::after {
+      content: "✕";
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: #ff0033;
+      text-shadow: 0 0 10px rgba(255, 0, 51, 0.9);
+    }
+    .fw-screen-flash {
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+      pointer-events: none;
+      background: rgba(255, 0, 51, 0.55);
+      opacity: 0;
+    }
+    .fw-screen-flash--hit {
+      animation: fw-danger-flash 0.38s ease-out forwards;
+    }
+    @keyframes fw-danger-flash {
+      0% { opacity: 0.75; }
+      35% { opacity: 0.5; }
+      100% { opacity: 0; }
+    }
+    #fw-overlay-gameover.overlay {
+      z-index: 130;
+    }
+    .fw-gameover-modal {
+      text-align: center;
+      border-color: rgba(255, 0, 51, 0.6);
+      box-shadow: 0 0 32px rgba(255, 0, 51, 0.35);
+    }
+    .fw-gameover-title {
+      margin: 0 0 12px;
+      font-size: clamp(1rem, 4.5vw, 1.15rem);
+      line-height: 1.45;
+      color: #ff0033;
+      animation: fw-gameover-blink 1.1s ease-in-out infinite;
+    }
+    @keyframes fw-gameover-blink {
+      0%, 100% { opacity: 1; text-shadow: 0 0 12px rgba(255, 0, 51, 0.9); }
+      50% { opacity: 0.72; text-shadow: 0 0 22px rgba(255, 0, 51, 1); }
+    }
+    .fw-gameover-score {
+      margin: 0 0 18px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .fw-gameover-score strong {
+      color: var(--cyan);
+      font-size: 1.1rem;
+    }
+    .fw-gameover-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .fw-gameover-actions .game-btn {
+      min-height: 52px;
+      font-size: 1rem;
+    }
     .map-wrap {
       flex: 1;
       display: flex;
@@ -435,120 +877,259 @@
       border-color: rgba(0, 255, 255, 0.55);
     }
     .play-lower {
-      flex: 0 0 auto;
-      display: block;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 100%;
-      padding: 0;
+      padding: 0 0 4px;
       margin: 0;
+      overflow: hidden;
       border-top: none;
       transition: background 0.25s, box-shadow 0.25s;
+      container-type: size;
+      container-name: play-feedback;
     }
     .play-lower:has(#sync-banner:not(:empty)) {
-      padding-top: 4px;
-      border-top: 1px dashed rgba(0, 255, 255, 0.12);
+      margin-top: 10px;
     }
     .play-lower--active {
-      background: radial-gradient(ellipse at center, rgba(0, 255, 120, 0.12) 0%, transparent 70%);
-      box-shadow: inset 0 0 40px rgba(0, 255, 102, 0.08);
+      background: radial-gradient(ellipse at center, rgba(0, 255, 120, 0.1) 0%, transparent 72%);
+      box-shadow: inset 0 0 40px rgba(0, 255, 102, 0.06);
     }
     .sync-banner {
       margin: 0;
+      width: 100%;
+      max-height: 100%;
+      overflow: hidden;
       text-align: center;
       direction: rtl;
-      font-size: inherit;
-      font-weight: inherit;
-      letter-spacing: 0.04em;
       color: transparent;
       min-height: 0;
-      line-height: 1.35;
-      transition: color 0.2s, text-shadow 0.2s, transform 0.2s;
+      line-height: 1.3;
     }
     .sync-banner bdi {
       direction: ltr;
       display: inline-block;
       unicode-bidi: isolate;
     }
-    .sync-banner-line1,
-    .sync-banner-line2,
-    .sync-feedback-block {
-      display: block;
+    .fb-panel {
+      display: grid;
+      grid-template-rows: auto auto minmax(0, auto) auto;
+      align-content: center;
+      justify-items: center;
+      gap: clamp(4px, 0.9vh, 8px);
+      width: 100%;
+      height: 100%;
+      max-height: 100%;
+      overflow: hidden;
+      padding: 0 4px 8px;
+      box-sizing: border-box;
     }
-    .sync-banner-line1,
-    .fb-line-top {
-      font-size: clamp(0.95rem, 4.2vw, 1.2rem);
-      line-height: 1.35;
+    .fb-status {
       display: block;
-      margin-bottom: 4px;
+      width: 100%;
+      font-size: clamp(20px, 6.2vw, 28px);
+      font-weight: 800;
+      line-height: 1.2;
+      text-align: center;
+      flex-shrink: 1;
+      min-height: 0;
     }
-    .fb-headline-success {
+    .fb-status--ok {
       color: #00ff00;
-      text-shadow: 0 0 18px rgba(0, 255, 0, 0.65);
+      text-shadow: 0 0 22px rgba(0, 255, 0, 0.7);
     }
-    .fb-headline-warn {
+    .fb-status--warn {
       color: #ff0033;
-      text-shadow: 0 0 18px rgba(255, 0, 51, 0.75);
+      text-shadow: 0 0 22px rgba(255, 0, 51, 0.85);
     }
-    .fb-text-he {
-      color: rgba(220, 245, 255, 0.88);
-      font-weight: 600;
-    }
-    .fb-chain-card {
+    .fb-desc {
       display: block;
-      margin: 4px auto 0;
-      padding: 5px 6px;
+      width: 100%;
+      font-size: clamp(15px, 4.2vw, 18px);
+      font-weight: 600;
+      line-height: 1.32;
+      text-align: center;
+      color: rgba(205, 220, 230, 0.9);
+      flex-shrink: 0;
+    }
+    .fb-panel:not(:has(.fb-status--warn)) .fb-desc {
+      color: #b388ff;
+      text-shadow: 0 0 12px rgba(179, 136, 255, 0.4);
+    }
+    .fb-hud {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.28);
+      padding: clamp(10px, 2.4vw, 16px) clamp(12px, 3.2vw, 20px);
+      background: #000;
+      border: 1px solid rgba(0, 255, 255, 0.55);
       border-radius: 4px;
-      box-shadow: 0 0 14px rgba(255, 255, 255, 0.08), inset 0 0 20px rgba(255, 255, 255, 0.04);
-      color: rgba(255, 255, 255, 0.9);
-      text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
-      font-weight: 700;
-      font-size: clamp(0.72rem, 3vw, 0.9rem);
-      line-height: 1.4;
-      text-align: center;
-      word-break: break-word;
+      box-shadow:
+        0 0 18px rgba(0, 255, 255, 0.28),
+        inset 0 0 28px rgba(0, 255, 255, 0.05);
+      flex-shrink: 1;
+      min-height: 0;
+      overflow: hidden;
     }
-    .fb-chain-card--sm {
-      font-size: clamp(0.6rem, 2.5vw, 0.74rem);
-      line-height: 1.35;
-      padding: 4px 5px;
+    .fb-hud--warn {
+      border-color: rgba(179, 136, 255, 0.6);
+      box-shadow:
+        0 0 18px rgba(179, 136, 255, 0.28),
+        inset 0 0 28px rgba(179, 136, 255, 0.06);
     }
-    .fb-chain-card--xs {
-      font-size: clamp(0.5rem, 2.1vw, 0.62rem);
-      line-height: 1.3;
-      padding: 3px 4px;
-    }
-    .fb-chain-card bdi {
-      color: rgba(255, 255, 255, 0.95);
-      white-space: normal;
-      word-break: break-word;
-    }
-    .fb-explain {
+    .fb-hud-explain {
       display: block;
-      margin-top: 0.35em;
-      padding: 0 2px;
+      width: 100%;
+      font-size: clamp(17px, 4.6vw, 22px);
+      font-weight: 700;
+      line-height: 1.32;
+      text-align: center;
       color: #b388ff;
-      font-size: clamp(0.72rem, 3.2vw, 0.9rem);
-      font-weight: 600;
-      line-height: 1.45;
-      text-shadow: 0 0 12px rgba(179, 136, 255, 0.45);
+      text-shadow: 0 0 14px rgba(179, 136, 255, 0.5);
+      word-break: break-word;
+      margin-bottom: clamp(5px, 1vh, 9px);
     }
-    .fb-explain--cta {
-      margin-top: 0.45em;
+    .fb-hud-chain {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(4px, 0.8vh, 7px);
+      width: 100%;
+      font-size: clamp(18px, 5.2vw, 24px);
+      font-weight: 700;
+      line-height: 1.35;
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 0 16px rgba(255, 255, 255, 0.45);
     }
-    .sync-banner--success {
-      transform: none;
+    .fb-hud-chain-line {
+      display: block;
+      width: 100%;
+    }
+    .fb-hud--multiline {
+      padding: clamp(8px, 2vw, 14px) clamp(10px, 2.8vw, 16px);
+    }
+    .fb-summary {
+      display: block;
+      width: 100%;
+      font-size: clamp(19px, 5.2vw, 24px);
+      font-weight: 800;
+      line-height: 1.25;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.96);
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
+      flex-shrink: 1;
+      min-height: 0;
+      margin-bottom: 2px;
+    }
+    .fb-panel:has(.fb-hud--multiline) .fb-status {
+      font-size: clamp(17px, 5.2vw, 24px);
+    }
+    .fb-panel:has(.fb-hud--multiline) .fb-desc {
+      font-size: clamp(14px, 3.8vw, 17px);
+    }
+    .fb-panel:has(.fb-hud--multiline) .fb-summary {
+      font-size: clamp(16px, 4.6vw, 21px);
+    }
+    .fb-panel--trick {
+      gap: clamp(3px, 0.55vh, 5px);
+      padding: 0 4px 6px;
+    }
+    .fb-panel--trick .fb-status {
+      font-size: clamp(17px, 4.6vw, 21px);
+      line-height: 1.18;
+    }
+    .fb-panel--trick .fb-desc {
+      font-size: clamp(12px, 3.2vw, 15px);
+      line-height: 1.28;
+    }
+    .fb-panel--trick .fb-summary {
+      font-size: clamp(13px, 3.5vw, 16px);
+      line-height: 1.28;
+      word-break: break-word;
+    }
+    .fb-panel--trick .fb-hud {
+      padding: 6px 10px;
+    }
+    .fb-panel--trick .fb-hud-chain {
+      font-size: clamp(14px, 3.6vw, 17px);
+      line-height: 1.28;
+      gap: 3px;
+    }
+    @container play-feedback (max-height: 300px) {
+      .fb-status {
+        font-size: clamp(16px, 4.8vw, 22px);
+      }
+      .fb-desc {
+        font-size: clamp(13px, 3.6vw, 16px);
+      }
+      .fb-summary {
+        font-size: clamp(15px, 4.2vw, 20px);
+      }
+      .fb-hud-explain {
+        font-size: clamp(14px, 3.8vw, 18px);
+      }
+      .fb-hud-chain {
+        font-size: clamp(15px, 4.2vw, 20px);
+      }
+      .fb-panel--trick .fb-status {
+        font-size: clamp(15px, 4.2vw, 19px);
+      }
+      .fb-panel--trick .fb-desc {
+        font-size: clamp(11px, 3vw, 14px);
+      }
+      .fb-panel--trick .fb-summary,
+      .fb-panel--trick .fb-hud-chain {
+        font-size: clamp(12px, 3.2vw, 15px);
+      }
+      .fb-panel--trick .fb-hud {
+        padding: 5px 8px;
+      }
+    }
+    @container play-feedback (max-height: 240px) {
+      .fb-status {
+        font-size: clamp(14px, 4.2vw, 18px);
+      }
+      .fb-desc {
+        font-size: clamp(12px, 3.2vw, 14px);
+      }
+      .fb-summary {
+        font-size: clamp(13px, 3.8vw, 17px);
+      }
+      .fb-hud {
+        padding: 6px 8px;
+      }
+      .fb-hud-explain {
+        font-size: clamp(12px, 3.2vw, 15px);
+        margin-bottom: 4px;
+      }
+      .fb-hud-chain {
+        font-size: clamp(13px, 3.6vw, 16px);
+      }
+      .fb-panel--trick .fb-status {
+        font-size: clamp(14px, 4vw, 18px);
+      }
+      .fb-panel--trick .fb-desc {
+        font-size: clamp(10px, 2.8vw, 13px);
+      }
+      .fb-panel--trick .fb-summary,
+      .fb-panel--trick .fb-hud-chain {
+        font-size: clamp(11px, 3vw, 14px);
+      }
+    }
+    .fb-summary--cta {
+      color: rgba(220, 245, 255, 0.92);
     }
     .sync-banner--calibrate {
       color: var(--cyan);
       text-shadow: 0 0 12px rgba(0, 255, 255, 0.45);
-      font-size: clamp(0.95rem, 4vw, 1.2rem);
-    }
-    .sync-banner--warn {
-      font-size: clamp(0.95rem, 4.2vw, 1.2rem);
+      font-size: clamp(16px, 4.2vw, 20px);
       font-weight: 700;
     }
     .play-lower--warn {
@@ -556,16 +1137,19 @@
       box-shadow: inset 0 0 40px rgba(255, 0, 51, 0.1);
     }
     .matrix-log {
+      flex-shrink: 0;
+      min-height: 3.4rem;
       margin-top: 0;
       padding: 8px 6px calc(6px + var(--safe-bottom));
       border-top: 1px solid rgba(0, 255, 80, 0.22);
-      background: linear-gradient(180deg, rgba(0, 8, 6, 0.75) 0%, rgba(0, 0, 0, 0.95) 100%);
-      box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.55);
+      background: linear-gradient(180deg, rgba(0, 8, 6, 0.92) 0%, rgba(0, 0, 0, 0.98) 100%);
+      box-shadow: 0 -8px 20px rgba(0, 0, 0, 0.75);
       font-size: 0.65rem;
       line-height: 1.5;
       color: rgba(0, 200, 90, 0.55);
       letter-spacing: 0.02em;
-      z-index: 2;
+      position: relative;
+      z-index: 4;
     }
     .log-line {
       margin: 0;
@@ -745,9 +1329,9 @@
           <div class="question math-ltr" id="q-text">0 × 0</div>
         </div>
         <div class="choices" id="choices" dir="ltr"></div>
-        <div class="play-lower" id="play-lower">
-          <p class="sync-banner" id="sync-banner" aria-live="polite"></p>
-        </div>
+      </div>
+      <div class="play-lower" id="play-lower">
+        <div class="sync-banner" id="sync-banner" aria-live="polite"></div>
       </div>
       <div class="matrix-log" id="matrix-log">
         <p class="log-line" id="log-line-1">[STATUS]: Awaiting neural handshake...</p>
@@ -755,6 +1339,85 @@
         <p class="log-line" id="log-line-3">[LOG]: Core calibration ready.</p>
       </div>
     </div>
+
+    <div id="screen-firewall" class="hidden" aria-label="הגנת פיירוול">
+    <div class="fw-toolbar">
+      <div class="fw-toolbar-actions">
+        <button type="button" class="secondary" id="btn-fw-quit" style="min-height:44px;padding:8px 14px;">יציאה</button>
+        <button type="button" class="secondary" id="btn-fw-pause" style="min-height:44px;padding:8px 14px;" aria-pressed="false">השהיה ⏸</button>
+      </div>
+      <div class="fw-hud">
+        <span class="pill"><span class="hud-label">מעבד</span> <strong id="fw-table-label">0</strong></span>
+        <span class="pill"><span class="hud-label">שאלה</span> <strong><span id="fw-q-cur">1</span>/<span id="fw-q-total">20</span></strong></span>
+        <span class="pill"><span class="hud-label">נותרו</span> <strong id="fw-q-left">20</strong></span>
+        <span class="pill"><span class="hud-label">ניקוד</span> <strong id="fw-score">0</strong></span>
+        <span class="pill"><span class="hud-label">שיא</span> <strong id="fw-high-score">0</strong></span>
+        <span class="pill fw-speed-pill" title="קצב לפי ניקוד"><span class="hud-label">קצב</span> <strong id="fw-speed-tier">×1</strong></span>
+      </div>
+    </div>
+    <div class="fw-progress-wrap">
+      <div class="fw-progress-meta">
+        <span>התקדמות סבב</span>
+        <strong id="fw-progress-label">0%</strong>
+      </div>
+      <div class="fw-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="fw-progress" aria-valuenow="0">
+        <i class="fw-progress-fill" id="fw-progress-fill"></i>
+      </div>
+    </div>
+    <div class="fw-shields-row" id="fw-shields" role="group" aria-label="מגני מערכת">
+      <span class="fw-shield fw-shield--on" aria-hidden="false"></span>
+      <span class="fw-shield fw-shield--on" aria-hidden="false"></span>
+      <span class="fw-shield fw-shield--on" aria-hidden="false"></span>
+    </div>
+    <div id="fw-screen-flash" class="fw-screen-flash" aria-hidden="true"></div>
+    <p class="fw-subtitle">חסמו את טיפות הקוד לפני שפורצות את הרצפה — בחרו את תוצאת הכפל דרך השער</p>
+    <div class="fw-arena" id="fw-arena">
+      <canvas id="fw-matrix-canvas" aria-hidden="true"></canvas>
+      <div id="fw-drops" aria-hidden="true"></div>
+      <div class="fw-gate-slot" id="fw-gate-slot">
+        <div class="fw-gate" id="fw-gate">
+          <span class="fw-gate-label">שער פיירוול</span>
+          <span id="fw-gate-expr" class="math-ltr">× 0</span>
+        </div>
+      </div>
+      <div class="fw-floor" aria-hidden="true">
+        <div class="fw-floor-line"></div>
+        <div class="fw-floor-bars" id="fw-floor-bars"></div>
+      </div>
+    </div>
+    <div class="fw-choices-wrap" id="fw-choices" dir="ltr"></div>
+    <div id="fw-overlay-pause" class="overlay hidden" aria-hidden="true">
+      <div class="modal fw-pause-modal">
+        <h3>המשחק בהשהיה</h3>
+        <p style="color:var(--muted);margin:0 0 16px;">לחצו המשך כדי לחזור להגנת הפיירוול</p>
+        <button type="button" class="game-btn" id="fw-pause-resume">המשך ▶</button>
+      </div>
+    </div>
+    <div id="fw-overlay-victory" class="overlay hidden" aria-hidden="true">
+      <div class="modal fw-victory-modal">
+        <h2 style="color:#00ff66;margin:0 0 12px;">הפיירוול עמד בביקורת!</h2>
+        <p class="fw-gameover-score">ניקוד סבב: <strong id="fw-victory-score">0</strong></p>
+        <p class="fw-gameover-score">שיא במעבד: <strong id="fw-victory-high">0</strong></p>
+        <p id="fw-victory-record" class="fw-new-record hidden">שיא חדש!</p>
+        <div class="fw-gameover-actions" style="margin-top:16px;">
+          <button type="button" class="game-btn btn-firewall-defense" id="fw-victory-restart">סבב נוסף 🔄</button>
+          <button type="button" class="secondary game-btn" id="fw-victory-map">חזרה למפת הליבות 🗺️</button>
+        </div>
+      </div>
+    </div>
+    <div id="fw-overlay-gameover" class="overlay fw-overlay-gameover hidden" aria-hidden="true">
+      <div class="modal fw-gameover-modal">
+        <h2 class="fw-gameover-title">הפיירוול נפרץ! המערכת קרסה באופן זמני.</h2>
+        <p id="fw-new-record" class="fw-new-record hidden">שיא חדש למעבד!</p>
+        <p class="fw-gameover-score">ניקוד השלב: <strong id="fw-result-score">0</strong></p>
+        <p class="fw-gameover-score">שיא פיירוול במעבד: <strong id="fw-result-high">0</strong></p>
+        <div class="fw-gameover-actions">
+          <button type="button" class="game-btn btn-firewall-defense" id="fw-restart">אתחול מערכת מחדש 🔄</button>
+          <button type="button" class="secondary game-btn" id="fw-result-map">חזרה למפת הליבות 🗺️</button>
+        </div>
+      </div>
+    </div>
+  </div>
   </div>
 
   <div id="overlay-end" class="overlay hidden" aria-hidden="true">
@@ -765,7 +1428,7 @@
       <p id="end-record" style="color:var(--muted);font-size:0.9rem;"></p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
         <button type="button" id="end-map">חזרה למפה</button>
-        <button type="button" class="secondary game-btn" id="end-retry">שדרוג כוח</button>
+        <button type="button" class="secondary game-btn" id="end-retry" data-mode="calibrate">שדרוג כוח</button>
       </div>
     </div>
   </div>
@@ -782,6 +1445,7 @@
     </div>
   </div>
 
+  <script src="/firewall-defense.js"></script>
   <script>
 (function () {
   const STORAGE = "multiply_game_save_v2";
@@ -825,6 +1489,7 @@
 
   const BTN_START = "כייל ליבה";
   const BTN_RETRY = "שדרוג כוח";
+  const BTN_FIREWALL = "מצב הגנת פיירוול ⚡";
 
   const PROTOCOL_TEXTS = {
     0: "זכרו: כל מה שמכפילים ב-0 נותן תוצאה של 0. 0 אומר כמה פעמים של כלום הכפלנו – התוצאה תמיד תהיה כלום!",
@@ -1056,109 +1721,266 @@
     return terms.join(" + ") + " = " + product;
   }
 
-  function buildRepeatedAdditionExplain(addend, count) {
-    const times = countTimesHebrew(count);
-    return "(כי חיברנו את " + addend + " " + times + ")";
+  /** טריק 10 / 11 / 12 — במקום שרשרת חיבור חוזרת ארוכה (כל השלבים והבוסים) */
+  function normFactor(n) {
+    return Number(n);
   }
 
-  function chainCardClass(count) {
-    if (count > 10) return "fb-chain-card fb-chain-card--xs";
-    if (count > 5) return "fb-chain-card fb-chain-card--sm";
-    return "fb-chain-card";
+  function getMultiplyTrickType(a, b) {
+    const x = normFactor(a);
+    const y = normFactor(b);
+    if (x === 10 || y === 10) return "ten";
+    if (x === 11 || y === 11) {
+      const other = x === 11 ? y : x;
+      if (other >= 0 && other <= 9) return "eleven";
+    }
+    if (x === 12 || y === 12) return "twelve";
+    return null;
+  }
+
+  function getTrickBase(a, b, trick) {
+    const x = normFactor(a);
+    const y = normFactor(b);
+    if (trick === "ten") return x === 10 ? y : x;
+    if (trick === "eleven") return x === 11 ? y : x;
+    return x === 12 ? y : y === 12 ? x : x;
+  }
+
+  function buildTrickVerbalLine(trick) {
+    if (trick === "ten") {
+      return "הזרקת קוד אפס! כשמכפילים ב-10, פשוט מוסיפים 0 בקצה של המספר:";
+    }
+    if (trick === "eleven") {
+      return "הכפלת קוד אחידה! המספר משתקף פעמיים זה לצד זה:";
+    }
+    return "פיצול ליבה! מפרקים את 12 ל-10 ול-2 ומחשבים בקלות בראש:";
+  }
+
+  function buildTrickHudChain(a, b, trick, hint) {
+    const x = normFactor(a);
+    const y = normFactor(b);
+    const base = getTrickBase(x, y, trick);
+    const answer = x * y;
+    if (trick === "ten") {
+      const tail = hint ? "?" : String(answer);
+      return ltrBdi(base + " -> " + tail);
+    }
+    if (trick === "eleven") {
+      const tail = hint ? "?" : String(answer);
+      return ltrBdi(base + " -> " + tail);
+    }
+    const part10 = base * 10;
+    const part2 = base * 2;
+    const line1 =
+      base + " × 10 = " + (hint ? "?" : String(part10));
+    const line2 = base + " × 2 = " + (hint ? "?" : String(part2));
+    return (
+      '<span class="fb-hud-chain-line">' +
+      ltrBdi(line1) +
+      "</span>" +
+      '<span class="fb-hud-chain-line">' +
+      ltrBdi(line2) +
+      "</span>"
+    );
+  }
+
+  function buildTrickSummaryLine(a, b, trick, hint) {
+    const x = normFactor(a);
+    const y = normFactor(b);
+    const answer = x * y;
+    const expr = ltrBdi(x + " × " + y);
+    if (trick === "ten" || trick === "eleven") {
+      const rhs = hint ? "?" : String(answer);
+      return "לכן: " + ltrBdi(x + " × " + y + " = " + rhs) + " !";
+    }
+    const base = getTrickBase(x, y, trick);
+    const part10 = base * 10;
+    const part2 = base * 2;
+    if (hint) {
+      return (
+        "לכן: " +
+        ltrBdi(part10 + " + " + part2) +
+        " באמת שווה ?! (" +
+        ltrBdi(x + " × " + y + " = ?") +
+        ")"
+      );
+    }
+    return (
+      "לכן: " +
+      ltrBdi(part10 + " + " + part2) +
+      " באמת שווה " +
+      ltrBdi(String(answer)) +
+      "! (" +
+      expr +
+      " = " +
+      ltrBdi(String(answer)) +
+      ")"
+    );
+  }
+
+  function buildTrickFeedbackFields(a, b, hint) {
+    const x = normFactor(a);
+    const y = normFactor(b);
+    const trick = getMultiplyTrickType(x, y);
+    return {
+      trick,
+      desc: buildTrickVerbalLine(trick),
+      chain: buildTrickHudChain(x, y, trick, hint),
+      summary: buildTrickSummaryLine(x, y, trick, hint),
+      hudSize: "fb-hud--trick",
+      panelClass: "fb-panel--trick",
+    };
+  }
+
+  /** שרשרת חיבור ב-HUD — result: עם תוצאה, hint: מסתיים ב-= ? */
+  function buildChainDisplayHtml(addend, count, chainMode) {
+    const product = addend * count;
+    const equalsSuffix = chainMode === "hint" ? " = ?" : " = " + product;
+    if (count <= 1) {
+      return ltrBdi(String(addend) + equalsSuffix);
+    }
+    const terms = [];
+    for (let i = 0; i < count; i++) terms.push(String(addend));
+    if (count <= 4) {
+      return ltrBdi(terms.join(" + ") + equalsSuffix);
+    }
+    const splitAt = Math.ceil(count / 2);
+    const line1 = terms.slice(0, splitAt).join(" + ");
+    const rest = terms.slice(splitAt);
+    const line2 =
+      chainMode === "hint"
+        ? rest.join(" + ") + " = ?"
+        : rest.length === 1
+          ? rest[0] + " = " + product
+          : rest.join(" + ") + " = " + product;
+    return (
+      '<span class="fb-hud-chain-line">' +
+      ltrBdi(line1) +
+      "</span>" +
+      '<span class="fb-hud-chain-line">' +
+      ltrBdi(line2) +
+      "</span>"
+    );
+  }
+
+  function buildSuccessVerbalLine(addend, count) {
+    return (
+      "כי חיברנו את המספר " +
+      ltrBdi(String(addend)) +
+      " " +
+      countTimesHebrew(count) +
+      ":"
+    );
+  }
+
+  function buildSuccessConclusionLine(a, b, answer) {
+    return "לכן: " + ltrBdi(a + " × " + b + " = " + answer) + " !";
+  }
+
+  function buildWrongSummaryLine(addend, count) {
+    return (
+      "כמה זה " +
+      ltrBdi(String(count)) +
+      " פעמים של " +
+      ltrBdi(String(addend)) +
+      "? נסה שוב!"
+    );
+  }
+
+  function fbHudSizeClass(count) {
+    return count > 4 ? "fb-hud--multiline" : "";
+  }
+
+  function buildFeedbackPanelHtml(opts) {
+    const statusClass =
+      opts.mode === "warn" ? "fb-status fb-status--warn" : "fb-status fb-status--ok";
+    const hudClass =
+      "fb-hud" +
+      (opts.mode === "warn" ? " fb-hud--warn" : "") +
+      (opts.hudSize ? " " + opts.hudSize : "");
+    const summaryClass =
+      "fb-summary" + (opts.summaryCta ? " fb-summary--cta" : "");
+    let hudHtml = "";
+    if (opts.chain) {
+      hudHtml =
+        '<div class="' +
+        hudClass +
+        '"><span class="fb-hud-chain">' +
+        opts.chain +
+        "</span></div>";
+    }
+    const panelClass =
+      "fb-panel" + (opts.panelClass ? " " + opts.panelClass : "");
+    return (
+      '<div class="' +
+      panelClass +
+      '" dir="rtl">' +
+      '<div class="' +
+      statusClass +
+      '">' +
+      opts.headline +
+      "</div>" +
+      '<div class="fb-desc">' +
+      opts.desc +
+      "</div>" +
+      hudHtml +
+      '<div class="' +
+      summaryClass +
+      '">' +
+      opts.summary +
+      "</div>" +
+      "</div>"
+    );
+  }
+
+  function pickWrongHeadline() {
+    const table = getLevelTableNum();
+    return table === 0 ? "שגיאת מערכת במטריקס!" : "סטיית כיול במערכת!";
   }
 
   function pickSuccessHeadline() {
     return SUCCESS_HEADLINES[rnd(0, SUCCESS_HEADLINES.length - 1)];
   }
 
-  function pickSuccessTagline() {
-    const table = getLevelTableNum();
-    if (!state.current || table === null) {
-      const generic = [
-        "התקדמות מעולה!",
-        "המשך לסנכרן את הליבה!",
-        "עוד צעד קדימה במטריקס!",
-      ];
-      return generic[rnd(0, generic.length - 1)];
+  function buildSuccessFeedbackHtml(overrideHeadline) {
+    if (!state.current) {
+      const headline = overrideHeadline || "סנכרון מוח מלא!";
+      return buildFeedbackPanelHtml({
+        mode: "success",
+        headline,
+        desc: "התקדמות מעולה במטריקס.",
+        chain: "",
+        summary: SUCCESS_FEEDBACK_DEFAULT,
+        hudSize: "",
+      });
     }
     const { a, b } = state.current;
-    const n = getExerciseBaseNum(table);
-
-    if (table === 0) {
-      const opts = [
-        formatMulExpr(a, b, false) + " – זה עדיין כלום!",
-        formatMulExpr(a, b, true) + " – בדיוק כמו שצריך!",
-      ];
-      return opts[rnd(0, opts.length - 1)];
+    const parts = getRepeatedAdditionParts(a, b);
+    const headline = overrideHeadline || pickSuccessHeadline();
+    if (overrideHeadline == null && getMultiplyTrickType(a, b) !== null) {
+      const trick = buildTrickFeedbackFields(a, b, false);
+      return buildFeedbackPanelHtml({
+        mode: "success",
+        headline,
+        desc: trick.desc,
+        chain: trick.chain,
+        summary: trick.summary,
+        hudSize: trick.hudSize,
+        panelClass: trick.panelClass,
+      });
     }
-    if (table === 1) {
-      return (
-        ltrBdi(String(n)) +
-        " במראה — נשאר בדיוק " +
-        ltrBdi(String(n)) +
-        "!"
-      );
-    }
-    if (table === 2) {
-      return (
-        "הדאבל של " +
-        ltrBdi(String(n)) +
-        " הוא " +
-        ltrBdi(String(n * 2)) +
-        "!"
-      );
-    }
-    if (table === 3) {
-      return (
-        "לקחנו דאבל של " +
-        ltrBdi(String(n)) +
-        " והוספנו עוד " +
-        ltrBdi(String(n)) +
-        "!"
-      );
-    }
-    return "התקדמות מעולה!";
-  }
-
-  function buildSuccessTopLine() {
-    return (
-      '<span class="fb-headline-success">' +
-      pickSuccessHeadline() +
-      "</span> " +
-      '<span class="fb-text-he">' +
-      pickSuccessTagline() +
-      "</span>"
-    );
-  }
-
-  function buildSuccessFeedbackHtml(overrideLine1) {
-    if (!state.current) {
-      return overrideLine1 != null
-        ? '<span class="fb-headline-success">' + overrideLine1 + "</span>"
-        : SUCCESS_FEEDBACK_DEFAULT;
-    }
-    const topLine =
-      overrideLine1 != null
-        ? '<span class="fb-headline-success">' + overrideLine1 + "</span>"
-        : buildSuccessTopLine();
-    const { answer } = state.current;
-    const parts = getRepeatedAdditionParts(state.current.a, state.current.b);
-    const chain = buildRepeatedAdditionChain(parts.addend, parts.count);
-    const explain = buildRepeatedAdditionExplain(parts.addend, parts.count);
-    return (
-      '<span class="sync-feedback-block" dir="rtl">' +
-      '<span class="fb-line-top">' +
-      topLine +
-      "</span>" +
-      '<span class="' + chainCardClass(parts.count) + '">' +
-      ltrBdi(chain) +
-      " באמת שווה " +
-      ltrBdi(String(answer)) +
-      "!</span>" +
-      '<span class="fb-explain">' +
-      explain +
-      "</span></span>"
-    );
+    const desc =
+      overrideHeadline != null
+        ? "כיול מושלם — המשך לשאלה הבאה:"
+        : buildSuccessVerbalLine(parts.addend, parts.count);
+    return buildFeedbackPanelHtml({
+      mode: "success",
+      headline,
+      desc,
+      chain: buildChainDisplayHtml(parts.addend, parts.count, "result"),
+      summary: buildSuccessConclusionLine(a, b, state.current.answer),
+      hudSize: fbHudSizeClass(parts.count),
+    });
   }
 
   /** הגורם שאינו מספר הטבלה (למשל ב-6×2 → 6) */
@@ -1180,35 +2002,51 @@
   }
 
   function buildWrongFeedbackHtml() {
-    if (!state.current) return WRONG_FEEDBACK_DEFAULT;
-    const parts = getRepeatedAdditionParts(state.current.a, state.current.b);
-    const chain = ltrBdi(buildRepeatedAdditionHintChain(parts.addend, parts.count));
-    const table = getLevelTableNum();
-    const headline = table === 0 ? "שגיאת מערכת!" : "סטיית כיול!";
-    const intro = table === 0 ? "זכור שזה פשוט:" : "תחשוב על זה ככה:";
-    const cta = table === 0 ? "כמה קיבלת? נסה שוב!" : "כמה זה ביחד? נסה שוב!";
-
-    return (
-      '<span class="sync-feedback-block" dir="rtl">' +
-      '<span class="fb-headline-warn">' +
-      headline +
-      "</span> " +
-      '<span class="fb-text-he">' +
-      intro +
-      "</span>" +
-      '<span class="' + chainCardClass(parts.count) + '">' +
-      chain +
-      "</span>" +
-      '<span class="fb-explain fb-explain--cta">' +
-      cta +
-      "</span></span>"
-    );
+    if (!state.current) {
+      return buildFeedbackPanelHtml({
+        mode: "warn",
+        headline: "סטיית כיול במערכת!",
+        desc: WRONG_FEEDBACK_DEFAULT,
+        chain: "",
+        summary: "נסה שוב!",
+        hudSize: "",
+        summaryCta: true,
+      });
+    }
+    const { a, b } = state.current;
+    const parts = getRepeatedAdditionParts(a, b);
+    if (getMultiplyTrickType(a, b) !== null) {
+      const trick = buildTrickFeedbackFields(a, b, true);
+      return buildFeedbackPanelHtml({
+        mode: "warn",
+        headline: pickWrongHeadline(),
+        desc: trick.desc,
+        chain: trick.chain,
+        summary: trick.summary,
+        hudSize: trick.hudSize,
+        panelClass: trick.panelClass,
+        summaryCta: true,
+      });
+    }
+    return buildFeedbackPanelHtml({
+      mode: "warn",
+      headline: pickWrongHeadline(),
+      desc: "נסה לחשב את זה כחיבור חוזר:",
+      chain: buildChainDisplayHtml(parts.addend, parts.count, "hint"),
+      summary: buildWrongSummaryLine(parts.addend, parts.count),
+      hudSize: fbHudSizeClass(parts.count),
+      summaryCta: true,
+    });
   }
 
   function setSyncBanner(text, mood) {
     const b = el("sync-banner");
     const lower = el("play-lower");
-    if (text.indexOf("<bdi") !== -1 || text.indexOf("<span") !== -1) {
+    if (
+      text.indexOf("<bdi") !== -1 ||
+      text.indexOf("fb-panel") !== -1 ||
+      text.indexOf("<span") !== -1
+    ) {
       b.innerHTML = text;
     } else {
       b.textContent = text;
@@ -1217,14 +2055,6 @@
     state.lastBannerMood = mood || "";
     lower.classList.toggle("play-lower--active", mood === "success");
     lower.classList.toggle("play-lower--warn", mood === "warn");
-  }
-
-  function getPickDelayMs(ok) {
-    if (!ok) return FEEDBACK_DELAY.warn;
-    const mood = state.lastBannerMood;
-    if (mood === "success") return FEEDBACK_DELAY.successBig;
-    if (mood === "calibrate") return FEEDBACK_DELAY.calibrate;
-    return FEEDBACK_DELAY.success;
   }
 
   function pushMatrixLog(line) {
@@ -1371,15 +2201,24 @@
           " · שיא סנכרון: " +
           st.bestCombo +
           (st.bestTimeSec != null ? " · זמן שיא: " + st.bestTimeSec + " שנ׳" : "") +
+          (L.type === "table" && window.FirewallDefense
+            ? " · שיא פיירוול: " + window.FirewallDefense.getHighScore(L.table)
+            : "") +
           "</p>"
         : "") +
       "</div>";
     if (unlocked) {
       const go = document.createElement("button");
       go.type = "button";
-      go.className = "game-btn";
-      go.textContent = st.stars ? BTN_RETRY : BTN_START;
-      go.addEventListener("click", () => startLevel(L.id));
+      if (L.type === "table" && st.stars > 0) {
+        go.className = "game-btn btn-firewall-defense";
+        go.textContent = BTN_FIREWALL;
+        go.addEventListener("click", () => startFirewallDefense(L.table));
+      } else {
+        go.className = "game-btn";
+        go.textContent = st.stars ? BTN_RETRY : BTN_START;
+        go.addEventListener("click", () => startLevel(L.id));
+      }
       div.appendChild(go);
     } else {
       const sp = document.createElement("span");
@@ -1458,6 +2297,42 @@
     state.screen = name;
     el("screen-map").classList.toggle("hidden", name !== "map");
     el("screen-play").classList.toggle("hidden", name !== "play");
+    el("screen-firewall").classList.toggle("hidden", name !== "firewall");
+  }
+
+  function getTableForLevel(levelId) {
+    const L = LEVELS[levelId];
+    return L && L.type === "table" ? L.table : null;
+  }
+
+  function applyEndRetryButton(levelId, succeeded) {
+    const btn = el("end-retry");
+    const tableNum = getTableForLevel(levelId);
+    if (succeeded && tableNum !== null) {
+      btn.textContent = BTN_FIREWALL;
+      btn.className = "game-btn btn-firewall-defense";
+      btn.dataset.mode = "firewall";
+    } else {
+      btn.textContent = succeeded ? BTN_RETRY : "נסו שוב";
+      btn.className = "secondary game-btn";
+      btn.dataset.mode = "calibrate";
+    }
+  }
+
+  function startFirewallDefense(tableNum) {
+    closeEnd();
+    stopTimer();
+    if (window.FirewallDefense && typeof window.FirewallDefense.start === "function") {
+      window.FirewallDefense.start({
+        table: tableNum,
+        onExit: () => {
+          showScreen("map");
+          renderMap();
+          returnToCoreLevels();
+        },
+      });
+      showScreen("firewall");
+    }
   }
 
   function stopTimer() {
@@ -1545,7 +2420,6 @@
     pushMatrixLog(
       "[STATUS]: Loading question " + state.q + "/" + QUESTIONS_PER_LEVEL + "..."
     );
-    el("play-lower").classList.remove("play-lower--active", "play-lower--warn");
     const box = el("choices");
     box.innerHTML = "";
     state.choices.forEach((val) => {
@@ -1600,9 +2474,7 @@
         pushMatrixLog("[SYSTEM]: Processor " + (getLevelTableNum() ?? "BOSS") + " sync OK.");
       }
       pushMatrixLog("[LOG]: Answer matrix verified in " + answerSec + "s.");
-      setTimeout(() => {
-        nextQuestion();
-      }, getPickDelayMs(true));
+      nextQuestion();
     } else {
       btn.classList.add("wrong");
       btn.disabled = true;
@@ -1662,6 +2534,7 @@
 
     el("overlay-end").classList.remove("hidden");
     el("overlay-end").setAttribute("aria-hidden", "false");
+    applyEndRetryButton(state.levelId, stars > 0);
     if (stars === 0) {
       el("end-title").textContent = "עוד קצת תרגול";
       el("end-desc").textContent =
@@ -1706,6 +2579,12 @@
     returnToCoreLevels();
   });
   el("end-retry").addEventListener("click", () => {
+    const mode = el("end-retry").dataset.mode;
+    if (mode === "firewall") {
+      const tableNum = getTableForLevel(state.levelId);
+      if (tableNum !== null) startFirewallDefense(tableNum);
+      return;
+    }
     closeEnd();
     startLevel(state.levelId);
   });
